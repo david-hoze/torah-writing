@@ -1,0 +1,8 @@
+# Ignore all obsidian config
+.obsidian/
+
+# Ignore all PDF files
+*.pdf
+
+# Ignore all PNG files
+*.png
