@@ -1,0 +1,48 @@
+% === template.tex (גרסה נקייה ויציבה) =======================
+\documentclass[12pt]{article}
+
+% פונטים ו־RTL
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
+\setmainfont{David}           % שנה לפונט העדיף אצלך
+\newfontfamily\headingfont{David}
+\newfontfamily\quotefont{David}
+
+\usepackage{geometry}         % שוליים
+\geometry{margin=2.5cm}
+
+% כדי שפנדוק לא יקרוס ברשימות
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% כותרות (ללא יישור ידני – Polyglossia תעשה RTL)
+\usepackage{sectsty}
+\sectionfont{\headingfont\LARGE}
+\subsectionfont{\headingfont\Large}
+
+% עיצוב ציטוטים
+\usepackage{etoolbox}
+\AtBeginEnvironment{quote}{\quotefont\itshape\small}
+
+\begin{document}
+
+$if(title)$
+{\headingfont\Huge $title$\par}
+$endif$
+
+$if(author)$
+{\headingfont\Large $author$\par}
+$endif$
+
+$if(date)$
+{\large $date$\par}
+$endif$
+
+\vspace{1cm}
+
+$body$
+
+\end{document}
+% =============================================================
