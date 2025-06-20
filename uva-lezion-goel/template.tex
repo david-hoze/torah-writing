@@ -26,7 +26,15 @@
 \usepackage{etoolbox}
 \AtBeginEnvironment{quote}{\quotefont\itshape\small}
 
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\headingfont בס"ד בר"ה בה"ב} % ימין עליון: שם העלון
+\fancyfoot[C]{\thepage}
+
 \setcounter{secnumdepth}{0}
+
+\setlength{\parskip}{0.7em}
 
 \begin{document}
 
