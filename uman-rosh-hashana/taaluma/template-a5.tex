@@ -5,7 +5,7 @@
 \setmainlanguage{hebrew}
 \setotherlanguage{english}
 
-\setmainfont{David}            % שנה לפונט הרצוי
+\setmainfont{Gisha}            % שנה לפונט הרצוי
 \newfontfamily\headingfont{David}
 
 % שולי A5 נוחים לדפדוף
@@ -39,6 +39,13 @@
 \setcounter{secnumdepth}{0}
 
 \setlength{\parindent}{4pt}
+
+\newfontfamily\quotefont{David}
+
+\usepackage{changepage}
+\renewenvironment{quote}
+  {\begin{adjustwidth}{10pt}{0pt}\quotefont\normalsize}
+  {\end{adjustwidth}}
 
 \begin{document}
 
