@@ -8,3 +8,5 @@ pandoc $md `
        --pdf-engine=xelatex `
        -o $out
 Write-Host "Created $out"
+
+Invoke-Item $out
