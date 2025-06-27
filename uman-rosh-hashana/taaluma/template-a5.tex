@@ -1,0 +1,37 @@
+% === template‑a5.tex =========================================
+\documentclass[12pt,a5paper]{article}   % <‑‑ A5
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
+
+\setmainfont{David}            % שנה לפונט הרצוי
+\newfontfamily\headingfont{David}
+
+% שולי A5 נוחים לדפדוף
+\usepackage{geometry}
+\geometry{
+  paperwidth=148mm,
+  paperheight=210mm,
+  left=18mm,right=18mm,
+  top=20mm,bottom=20mm
+}
+
+% עיצוב הכותרת הקבועה
+\newcommand{\MainTitle}{
+  \begin{center}
+    {\headingfont\Huge\bfseries תעלומה\par}\vspace{0.3em}
+    {\headingfont\large מסע בזמן בעקבות תפארתנו הנסתרת\par}\vspace{0.3em}
+    {\headingfont\normalsize חלק א' – חישוב מסלול מחדש\par}
+  \end{center}\vspace{1cm}
+}
+
+\pagestyle{plain}  % ביטול כותרות רצות ע"ג עלון
+
+\begin{document}
+
+\MainTitle          % <‑‑ מציב את הכותרת
+$body$              % <‑‑ גוף החוברת
+
+\end{document}
+% =============================================================
