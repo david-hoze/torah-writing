@@ -44,8 +44,8 @@ def main():
     # inject title block after \begin{document}
     title_block = rf"""
 \begin{{center}}
-  {{\headingfont\fontsize{{30}}{{19}}\selectfont {part}\par}}
-  {{\headingfont\fontsize{{12}}{{19}}\selectfont {subtitle}\par}}
+  {{\headingfont\fontsize{{47}}{{19}}\selectfont {part}\par}}
+  {{\headingfont\fontsize{{20}}{{19}}\selectfont {subtitle}\par}}
 \end{{center}}\vspace{{1cm}}
 """
     with tpl_path.open(encoding="utf-8") as f_in, tpl_tmp.open("w", encoding="utf-8") as f_out:
