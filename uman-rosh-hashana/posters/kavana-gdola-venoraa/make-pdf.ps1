@@ -9,6 +9,7 @@ $pandocArgs = @(
   "--pdf-engine=xelatex"
   "-o", $pdfOut
 )
+
 pandoc @pandocArgs
 
 Start-Process $pdfOut
