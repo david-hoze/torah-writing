@@ -1,0 +1,64 @@
+% === template.tex (גרסה נקייה ויציבה) =======================
+\documentclass[12pt]{article}
+
+% פונטים ו־RTL
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
+\setmainfont{David}           % שנה לפונט העדיף אצלך
+\newfontfamily\headingfont{David}
+\newfontfamily\quotefont{David}
+
+\usepackage{geometry}         % שוליים
+\geometry{margin=2.5cm}
+
+% כדי שפנדוק לא יקרוס ברשימות
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% כותרות (ללא יישור ידני – Polyglossia תעשה RTL)
+\usepackage{sectsty}
+\sectionfont{\headingfont\LARGE}
+\subsectionfont{\headingfont\Large}
+
+% עיצוב ציטוטים
+\usepackage{etoolbox}
+\AtBeginEnvironment{quote}{\quotefont\itshape\small}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\headingfont בס"ד בר"ה בה"ב} % ימין עליון: שם העלון
+\fancyfoot[C]{\thepage}
+
+\setcounter{secnumdepth}{0}
+
+\setlength{\parskip}{0.7em}
+
+% --- דחיסת פריסת העמוד ---------------------------------------
+\geometry{top=1.5cm,bottom=1.5cm,left=2cm,right=2cm} % שוליים
+\setlength{\parskip}{0pt plus 1pt}                    % ללא רווח בין פסקאות
+\linespread{0.94}                                     % צופף שורות קלות
+% --------------------------------------------------------------
+
+\begin{document}
+
+$if(title)$
+\begin{center}
+{\headingfont\Huge $title$}
+\end{center}
+$endif$
+
+$if(author)$
+{\headingfont\Large $author$\par}
+$endif$
+
+$if(date)$
+{\large $date$\par}
+$endif$
+
+$body$
+
+\end{document}
+% =============================================================
