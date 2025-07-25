@@ -1,0 +1,62 @@
+% === template‑a5.tex =========================================
+\documentclass[12pt,a4paper]{article}   % <‑‑ A5
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\setotherlanguage{hebrew}
+
+\setmainfont{Gisha}            % שנה לפונט הרצוי
+\newfontfamily\headingfont{David}
+
+% שולי A5 נוחים לדפדוף
+\usepackage{geometry}
+
+\geometry{
+  left=25mm, right=25mm,
+  top=30mm, bottom=30mm
+}
+
+% עיצוב הכותרת הקבועה
+\newcommand{\MainTitle}{
+  \begin{center}
+    {\headingfont\fontsize{83}{35}\selectfont תעלומה\par}\vspace{0.3em}
+    {\headingfont\fontsize{20}{19}\selectfont A Journey Through Time In Pursuit of Our Veiled Glory\par}\vspace{0.3em}
+    \vspace{0.3cm}
+% <subtitle>
+  \end{center}
+}
+
+\usepackage{sectsty}
+\sectionfont{\fontsize{20}{26}\selectfont}
+\subsectionfont{\fontsize{18}{24}\selectfont}
+\subsubsectionfont{\fontsize{16}{22}\selectfont}
+
+\renewcommand{\normalsize}{\fontsize{14}{20}\selectfont}
+
+\pagestyle{plain}  % ביטול כותרות רצות ע"ג עלון
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\headingfont בה"ב בר"ה בס"ד} % ימין עליון: שם העלון
+\fancyfoot[C]{\thepage}
+
+\setcounter{secnumdepth}{0}
+
+\setlength{\parindent}{4pt}
+\setlength{\parskip}{0.3em}
+
+\newfontfamily\quotefont{David}
+
+\usepackage{changepage}
+\renewenvironment{quote}
+  {\begin{adjustwidth}{10pt}{0pt}\quotefont\normalsize}
+  {\end{adjustwidth}}
+
+\begin{document}
+
+\MainTitle          % <‑‑ מציב את הכותרת
+$body$              % <‑‑ גוף החוברת
+
+\end{document}
+% =============================================================
