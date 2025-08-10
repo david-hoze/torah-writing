@@ -1,6 +1,6 @@
 # Part Two – Greater Are Tzaddikim in their demise
 
-## Paid babysitter
+## A paid babysitter
 
 Shlomo spent the next few days with questions running through his head. He tried learning some sources on his own, but very quickly realized he still needed Shmuel’s help. He pulled his phone out of his pocket and dialed his good friend. “Yes, Shlomo... I’ve been waiting for your call,” came Shmuel’s voice. Shlomo sighed in relief and smiled. “Oh, I’m glad to hear that. Listen, we absolutely have to continue... I can’t make heads or tails of this on my own.” Shmuel chuckled on the other end. “I understand... I just need to find some time...”. Shmuel thought for a few moments, and then answered, “Let’s meet after Ma’ariv tomorrow. I can clear a few hours – after all, these matters are of cosmic importance.” Shlomo grinned. “Alright. I’ve waited this long; I can hold out until tomorrow night.”
 
@@ -28,7 +28,7 @@ Shlomo entered Shmuel’s home and followed him into the small study off to the 
 
 >Kokhavei Or – Chochmah U’Binah 20–21
 
->**“And regarding the fact that he resolved and took possession of the holy field to water and grow the trees (which are the souls of Israel, referred to by the names ‘field’ and ‘vineyard’)** ... also, that he strives, by means of the wondrous four powers that he possesses, to rescue and to heal all the souls of Israel, and especially, most especially, all those whom he will awaken through an awakening from below — through speech and through action (namely, by giving charity and by reciting the Ten Psalms at his holy gravesite) ... And likewise, all the other words of that praise will all be explained as referring to this matter to anyone insightful, in conjunction with the other introductions, as brought in _Likutei Halachot_, Hilchot Hashkamat HaBoker, Halacha 4 — see there. **And the discerning reader will understand on his own that whenever he (Rabbeinu) is not explicitly mentioned there — and similarly in other places in his holy writings, where only a general reference is made to a “tzaddik” — it is because of Darchei Shalom "Kvod Hashem Haster Davar"**”
+>**“And regarding the fact that he resolved and took possession of the holy field to water and grow the trees (which are the souls of Israel, referred to by the names ‘field’ and ‘vineyard’)** ... also, that he strives, by means of the wondrous four powers that he possesses, to rescue and to heal all the souls of Israel, and especially, most especially, all those whom he will awaken through an awakening from below — through speech and through action (namely, by giving charity and by reciting the Ten Psalms at his holy gravesite) ... And likewise, all the other words of that praise will all be explained as referring to this matter to anyone insightful, in conjunction with the other introductions, as brought in _Likutei Halachot_, Hilchot Hashkamat HaBoker, Halacha 4 — see there. **And the discerning reader will understand on his own that whenever he (Rabbeinu) is not explicitly mentioned there — and similarly in other places in his holy writings, where only a general reference is made to a “tzaddik” — it is because of Darchei Shalom and "Kvod Hashem Haster Davar"**”
 
 “Pshh... One has to read that introduction before studying _Likutei Halachot_,” Shlomo exclaimed.
 
@@ -38,7 +38,7 @@ Shlomo entered Shmuel’s home and followed him into the small study off to the 
 
 “In the aforementioned year of 5566, when he began to speak with me about the matter of the rectification of souls that he was engaged in — which is the subject of the Master of the Field, as noted — at that time he said to me: ‘Back in Zlatipolia, I came to know a bit about this. That was when I first began to understand something about this matter of the Master of the Field.’ And the implication of his words was that it was then that he started to know, but the main knowing he has is now. And he said that Rabbi Shimon bar Yochai, z”l, had hinted a little about this in the holy Zohar. **And it's now understood that the way he knows now this matter of the Master of the Field — no Tzaddik ever knew.**”
 
-“Pshh... so this is a copy of _Chayei Moharan_ with the omitted passages restored...” Shlomo marveled.
+“Wow... so this is a copy of _Chayei Moharan_ with the omitted passages restored...” Shlomo marveled.
 
 “Yes,” Shmuel affirmed. “And since a few days had passed, I remembered a pamphlet I have from Moreinu HaRav, _shlit”a_,” he said, pulling out a slim white booklet. “It’s got some very high-level Kabbalah, but I managed to find something that even we can grasp.”
 
@@ -49,7 +49,7 @@ _(Shmuel opened the booklet and began to read.)_
 
 >**“Now we have come on Rosh Hashana to rectify the sin of Adam HaRishon and the sin of the Golden Calf,** from which all sins and blemishes stem... **And the moment Rabbeinu stepped the first four Amot onto the soil of Eretz Yisrael, the secret of Rosh Hashana was immediately revealed to him.** This secret is the rectification for the sin of the Golden Calf and the sin of the Tree of Knowledge. At that time, the 370 Lights and the 150 Lights that had been taken from each person on the first day of Creation are returned to him — for that day (the day of mankind’s creation) was designated as a day of _teshuvah_ (repentance) for all generations. However, in order to form the vessels for us so that we can receive those 370 Lights and 150 Lights, **Rabbeinu himself must create for us the vessels so that we can receive these great lights**.”
 
-“Pshhhh... this lines up exactly with _Likutei Halachot_, Hilchot Arvit, section 4! In that lesson too it speaks about Adam’s sin, about Rosh Hashana, and about the vessels that the Master of the Field makes,” Shlomo said excitedly.
+“Wow... this lines up exactly with _Likutei Halachot_, Hilchot Arvit, section 4! In that Halakha too it speaks about Adam’s sin, about Rosh Hashana, and about the vessels that the Master of the Field makes,” Shlomo said excitedly.
 
 “Yes,” Shmuel agreed, nodding earnestly. “And the Rav goes on to write:”
 
@@ -57,7 +57,7 @@ _(Shmuel opened the booklet and began to read.)_
 
 >“... And it is brought in _Tikkun 69_ that Adam HaRishon cast darkness between the Cause of all Causes and the Cause of causes... and when Rabbeinu is in the aspect of Adam HaRishon [‘Adam’ being an acronym for Adam–David–Moshe], **who came after five thousand five hundred and fifty-nine years to completely rectify the sin of Adam HaRishon and to fashion for all mortals the vessels that had been nullified for them**, ...”
 
-“Pshh, what words... Rabbeinu _fully_ repaired the sin of Adam HaRishon!” Shlomo exclaimed with excitement. “I’m starting to catch the picture now...” he murmured thoughtfully.
+“Wow, what words... Rabbeinu _fully_ repaired the sin of Adam HaRishon!” Shlomo exclaimed with excitement. “I’m starting to catch the picture now...” he murmured thoughtfully.
 
 ## Another Stone in the Great Building
 
