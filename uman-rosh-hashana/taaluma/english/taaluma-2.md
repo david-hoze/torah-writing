@@ -1,4 +1,4 @@
-# Part Two – Greater Are Tzaddikim in their demise
+# Part 2 - Greater Are Tzaddikim in their demise
 
 ## A paid babysitter
 
