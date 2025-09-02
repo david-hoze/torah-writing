@@ -4,7 +4,9 @@
 # Ignore all PDF files
 *.pdf
 
-# Ignore all PNG files
+# Ignore all Image files
 *.png
+*.jpg
+*.jpeg
 
 scratch.md
