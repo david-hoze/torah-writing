@@ -3,16 +3,6 @@
 import sys
 from pathlib import Path
 
-def split_title(h1: str):
-    """return (part, subtitle) split at first dash"""
-    if " - " in h1:
-        part, sub = h1.split(" - ", 1)
-    elif "-" in h1:
-        part, sub = h1.split("-", 1)
-    else:
-        part, sub = h1, ""
-    return part.strip(), sub.strip()
-
 def main():
     if len(sys.argv) < 2:
         sys.exit("usage: make_taaluma.py <markdown.md> [template.tex]")
