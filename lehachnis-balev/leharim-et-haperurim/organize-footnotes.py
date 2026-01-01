@@ -5,12 +5,14 @@ from pathlib import Path
 
 def main():
     if len(sys.argv) < 2:
-        sys.exit("usage: make_taaluma.py <markdown.md> [template.tex]")
-    md_path = Path(sys.argv[1])
-    if not md_path.exists(): sys.exit(f"Markdown '{md_path}' not found")
+        sys.exit("usage: make_taaluma.py <article.md> <sources.md>")
+    article = Path(sys.argv[1])
+    if not article.exists(): sys.exit(f"Markdown '{article}' not found")
+    sources = Path(sys.argv[2])
+    if not sources.exists(): sys.exit(f"Markdown '{sources}' not found")
 
     # --- read markdown and extract first heading ---------------------------
-    with md_path.open(encoding="utf-8") as f:
+    with article.open(encoding="utf-8") as f:
         lines = f.readlines()
 
     footnote_num = 1
@@ -45,6 +47,26 @@ def main():
     sorted_footnotes = sorted(footnotes)
     for footnote_num in sorted_footnotes:
         print(footnotes[footnote_num])
-        
+
+    with sources.open(encoding="utf-8") as f:
+        lines = f.readlines()
+
+    footnote_sources = {}
+    footnote_new_num = None
+    for ln in lines:
+        if ln.startswith("## footnote "):
+            footnote_orig_num = ln[12:][:1]
+            print(footnote_orig_num)
+            print(footnote_translation)
+            footnote_new_num = footnote_translation[footnote_orig_num]
+            footnote_sources[footnote_new_num] = "## footnote " + str(footnote_new_num) + "\n"
+        elif footnote_new_num:
+            footnote_sources[footnote_new_num] += ln + "\n"
+
+    sorted_footnote_sources = sorted(footnote_sources)
+
+    for footnote_num in sorted_footnote_sources:
+        print(footnote_sources[footnote_num])
+
 if __name__ == "__main__":
     main()
