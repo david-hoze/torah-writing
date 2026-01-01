@@ -63,11 +63,11 @@ def main():
     footnote_new_num = None
     for ln in lines:
         if ln.startswith(footnote_source_prefix):
-            footnote_orig_num = ln[len(footnote_source_prefix):][:1]
+            footnote_orig_num = ln[len(footnote_source_prefix):][:-1]
             footnote_new_num = footnote_translation[footnote_orig_num]
             footnote_sources[footnote_new_num] = footnote_source_prefix + str(footnote_new_num) + "\n"
         elif footnote_new_num:
-            footnote_sources[footnote_new_num] += ln + "\n"
+            footnote_sources[footnote_new_num] += ln
 
     sorted_footnote_sources = sorted(footnote_sources)
 
