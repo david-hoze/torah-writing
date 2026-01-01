@@ -3,6 +3,11 @@
 import sys
 from pathlib import Path
 
+# For testing
+# footnote_source_prefix = "## footnote "
+# For hebrew
+footnote_source_prefix = "## הערה "
+
 def main():
     if len(sys.argv) < 2:
         sys.exit("usage: make_taaluma.py <article.md> <sources.md>")
@@ -57,10 +62,10 @@ def main():
     footnote_sources = {}
     footnote_new_num = None
     for ln in lines:
-        if ln.startswith("## footnote "):
-            footnote_orig_num = ln[12:][:1]
+        if ln.startswith(footnote_source_prefix):
+            footnote_orig_num = ln[len(footnote_source_prefix):][:1]
             footnote_new_num = footnote_translation[footnote_orig_num]
-            footnote_sources[footnote_new_num] = "## footnote " + str(footnote_new_num) + "\n"
+            footnote_sources[footnote_new_num] = footnote_source_prefix + str(footnote_new_num) + "\n"
         elif footnote_new_num:
             footnote_sources[footnote_new_num] += ln + "\n"
 
