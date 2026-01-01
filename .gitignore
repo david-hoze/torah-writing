@@ -10,3 +10,7 @@
 *.jpeg
 
 scratch.md
+
+# Ignoring organize-footnotes.y output
+article_output.md
+sources_output.md

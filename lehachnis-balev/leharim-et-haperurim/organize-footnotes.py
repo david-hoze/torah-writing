@@ -15,6 +15,8 @@ def main():
     with article.open(encoding="utf-8") as f:
         lines = f.readlines()
 
+    article_output = open("article_output.md", "w", encoding="utf-8")
+
     footnote_num = 1
     footnotes = {}
     footnote_translation = {}
@@ -42,22 +44,21 @@ def main():
                 new_line += ln[i]
                 i += 1
         if new_line != "": # We're not in a footnote
-            print(new_line)
+            article_output.write(new_line)
 
     sorted_footnotes = sorted(footnotes)
     for footnote_num in sorted_footnotes:
-        print(footnotes[footnote_num])
+        article_output.write(footnotes[footnote_num])
 
     with sources.open(encoding="utf-8") as f:
         lines = f.readlines()
 
+    sources_output = open("sources_output.md", "w", encoding="utf-8")
     footnote_sources = {}
     footnote_new_num = None
     for ln in lines:
         if ln.startswith("## footnote "):
             footnote_orig_num = ln[12:][:1]
-            print(footnote_orig_num)
-            print(footnote_translation)
             footnote_new_num = footnote_translation[footnote_orig_num]
             footnote_sources[footnote_new_num] = "## footnote " + str(footnote_new_num) + "\n"
         elif footnote_new_num:
@@ -66,7 +67,7 @@ def main():
     sorted_footnote_sources = sorted(footnote_sources)
 
     for footnote_num in sorted_footnote_sources:
-        print(footnote_sources[footnote_num])
+        sources_output.write(footnote_sources[footnote_num])
 
 if __name__ == "__main__":
     main()
