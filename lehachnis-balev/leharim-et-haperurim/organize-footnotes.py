@@ -14,6 +14,7 @@ def main():
         lines = f.readlines()
 
     footnote_num = 1
+    footnotes = {}
     footnote_translation = {}
     for ln in lines:
         i = 0
@@ -26,19 +27,24 @@ def main():
                 while j < len(ln) and ln[j] != ']':
                     orig_footnote_num += ln[j]
                     j += 1
-                if (ln[j + 1] == ":"):
-                    new_line += "[^" + str(footnote_translation[orig_footnote_num]) + "]:"
-                    i = j + 2
+                if ln[j + 1] == ":" and i == 0:
+                    new_footnote_num = footnote_translation[orig_footnote_num]
+                    footnotes[new_footnote_num] = "[^" + str(new_footnote_num) + "]:" + ln[j + 2:]
+                    break
                 else:
-                    new_footnote_num = str(footnote_num)
-                    new_line += "[^" + new_footnote_num + "]"
-                    footnote_translation[orig_footnote_num] = new_footnote_num
+                    new_line += "[^" + str(footnote_num) + "]"
+                    footnote_translation[orig_footnote_num] = footnote_num
                     footnote_num+=1
                     i = j + 1
             else:
                 new_line += ln[i]
                 i += 1
-        print(new_line)
+        if new_line != "": # We're not in a footnote
+            print(new_line)
 
+    sorted_footnotes = sorted(footnotes)
+    for footnote_num in sorted_footnotes:
+        print(footnotes[footnote_num])
+        
 if __name__ == "__main__":
     main()
