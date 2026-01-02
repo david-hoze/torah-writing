@@ -8,6 +8,8 @@ from pathlib import Path
 # For hebrew
 footnote_source_prefix = "## הערה "
 
+quote_heading_prefix = ">### "
+
 def main():
     if len(sys.argv) < 2:
         sys.exit("usage: make_taaluma.py <article.md> <sources.md>")
@@ -71,8 +73,40 @@ def main():
 
     sorted_footnote_sources = sorted(footnote_sources)
 
+    citation_mismatch = open("citation-mismatch.md", "w", encoding="utf-8")
     for footnote_num in sorted_footnote_sources:
         sources_output.write(footnote_sources[footnote_num])
+        lines = footnote_sources[footnote_num].split("\n")
+        i = 0
+        footnote = footnotes[footnote_num]
+
+        citations = []
+        while i < len(footnote):
+            if footnote[i] == '"' and (i == 0 or footnote[i-1] == ' '):
+                while footnote[i] != '(': i += 1
+                while footnote[i] != ')': i += 1
+            else:
+                if footnote[i] == '(':
+                    j = i + 1
+                    while footnote[j] != ')': j += 1
+                    citations += [item.strip() for item in footnote[i+1:j].split(",")]
+                    i = j
+            i += 1
+
+        citation_num = 0
+        for ln in lines:
+            if ln.startswith(quote_heading_prefix):
+                if citation_num >= len(citations):
+                    citation_mismatch.write(f"Not enough citations in footnote number: {footnote_num}\n")
+                    break
+                source_citation = ln[len(quote_heading_prefix):]
+                footnote_citation = citations[citation_num]
+                if source_citation == footnote_citation:
+                    citation_num += 1
+                else:
+                    citation_mismatch.write(f"Citation mismatch in footnote number: {footnote_num}\n")
+                    citation_mismatch.write(f"Footnote citation:\n{footnote_citation}\n")
+                    citation_mismatch.write(f"Source citation:\n{source_citation}\n")
 
 if __name__ == "__main__":
     main()
