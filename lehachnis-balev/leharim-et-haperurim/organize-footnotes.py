@@ -76,7 +76,7 @@ def main():
 
     sorted_footnotes = sorted(footnotes)
     for footnote_num in sorted_footnotes:
-        article_output.write(footnotes[footnote_num])
+        article_output.write(footnotes[footnote_num] + "\n")
 
     with sources.open(encoding="utf-8") as f:
         lines = f.readlines()
