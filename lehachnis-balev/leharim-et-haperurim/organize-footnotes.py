@@ -33,7 +33,7 @@ def get_citations(citation_list_str):
 
 def main():
     if len(sys.argv) < 2:
-        sys.exit("usage: make_taaluma.py <article.md> <sources.md>")
+        sys.exit("usage: organize-footnotes.py <article.md> <sources.md>")
     article = Path(sys.argv[1])
     if not article.exists(): sys.exit(f"Markdown '{article}' not found")
     sources = Path(sys.argv[2])
@@ -137,13 +137,23 @@ def main():
                     citation_mismatch.write(f"Not enough citations in footnote number: {footnote_num}\n")
                     break
                 source_citation = ln[len(quote_heading_prefix):]
-                footnote_citation = citations[citation_num]
-                if source_citation == footnote_citation:
-                    citation_num += 1
-                else:
-                    citation_mismatch.write(f"Citation mismatch in footnote number: {footnote_num}\n")
-                    citation_mismatch.write(f"Footnote citation:\n{footnote_citation}\n")
-                    citation_mismatch.write(f"Source citation:\n{source_citation}\n")
+                while True:
+                    footnote_citation = citations[citation_num]
+                    if source_citation != footnote_citation:
+                        if footnote_citation in citations[:citation_num]:
+                            citation_mismatch.write(
+f"""Note: The source for {footnote_citation} in footnote_number {footnote_num} was brought in the footnote sources,
+so we're advancing to the next, better check if it contains what's necessary\n.""")
+                            citation_num += 1
+                        else:
+                            citation_mismatch.write(f"Citation mismatch in footnote number: {footnote_num}\n")
+                            citation_mismatch.write(f"Footnote citation:\n{footnote_citation}\n")
+                            citation_mismatch.write(f"Source citation:\n{source_citation}\n")
+                            break
+                    else:
+                        break
+                citation_num += 1
+
 
 if __name__ == "__main__":
     main()
