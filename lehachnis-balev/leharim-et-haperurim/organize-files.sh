@@ -28,3 +28,5 @@ if diff -1 -B orig-src.md organized-src.md >/dev/null; then
     echo Updating source file
     mv $organizedSrc $origSrc
 fi
+
+rm orig.md organized.md orig-src.md organized-src.md
