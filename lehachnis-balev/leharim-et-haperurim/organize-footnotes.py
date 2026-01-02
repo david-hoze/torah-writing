@@ -92,7 +92,13 @@ def main():
                 while footnote[i] != '(': i += 1
                 print(f"Found ( in {i}, footnote[i - 2] = {footnote[i - 2]}")
                 if (footnote[i - 2] == '"'): # Meaning the parantheses belong to the source
-                    while footnote[i] != ')': i += 1
+                    j = i + 1
+                    while footnote[j] != ')': j += 1
+                    full_citation = [item.strip() for item in footnote[i+1:j].split(",")]
+                    full_citation = [item.replace("וע\"ע","").replace("ע\"ע","").strip() for item in full_citation]
+                    if len(full_citation) > 1:
+                        citations += full_citation[1:]
+
                     print(f"Found closing parantheses in {i}, surroundings {footnote[i - 5:i + 5]}")
                 else:
                     i -= 1
