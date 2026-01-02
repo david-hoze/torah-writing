@@ -10,6 +10,10 @@ python organize-footnotes.py $orig $origSrc
 ./squeeze-new-lines.sh $orig
 ./squeeze-new-lines.sh $organized
 
+echo lines, words, chars
+wc $orig
+wc $organized
+
 sed 's/[0-9]//g' $orig | sort > orig.md
 sed 's/[0-9]//g' $organized | sort > organized.md
 
@@ -20,6 +24,10 @@ fi
 
 ./squeeze-new-lines.sh $origSrc
 ./squeeze-new-lines.sh $organizedSrc
+
+echo lines, words, chars
+wc $origSrc
+wc $organizedSrc
 
 sed 's/[0-9]//g' $origSrc | sort > orig-src.md
 sed 's/[0-9]//g' $organizedSrc | sort > organized-src.md
