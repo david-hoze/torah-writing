@@ -33,11 +33,11 @@ def get_citations(citation_list_str):
 
 def main():
     if len(sys.argv) < 2:
-        sys.exit("usage: organize-footnotes.py <article.md> <sources.md>")
+        sys.exit("usage: organize-footnotes.py <article.md> [sources.md]")
     article = Path(sys.argv[1])
     if not article.exists(): sys.exit(f"Markdown '{article}' not found")
-    sources = Path(sys.argv[2])
-    if not sources.exists(): sys.exit(f"Markdown '{sources}' not found")
+    sources = Path(sys.argv[2]) if len(sys.argv) > 2 else None
+    if sources and not sources.exists(): sys.exit(f"Markdown '{sources}' not found")
 
     # --- read markdown and extract first heading ---------------------------
     with article.open(encoding="utf-8") as f:
@@ -77,6 +77,9 @@ def main():
     sorted_footnotes = sorted(footnotes)
     for footnote_num in sorted_footnotes:
         article_output.write(footnotes[footnote_num] + "\n")
+
+    if not sources:
+        sys.exit(0)
 
     with sources.open(encoding="utf-8") as f:
         lines = f.readlines()
