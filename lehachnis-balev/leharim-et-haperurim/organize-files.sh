@@ -1,7 +1,15 @@
 #!/bin/sh
 
-python organize-footnotes.py leharim-et-haperurim.md leharim-et-haperurim-sources.md
-dos2unix article_output.md
-cat -s article_output.md > article_output_squeezed.md
-mv article_output_squeezed.md article_output.md
-unix2dos article_output.md
+orig="leharim-et-haperurim.md"
+origSrc="leharim-et-haperurim-sources.md"
+organized="article_output.md"
+
+python organize-footnotes.py $orig $origSrc
+
+./squeeze-new-lines.sh $orig
+./squeeze-new-lines.sh $organized
+
+sed 's/[0-9]//g' $orig | sort > orig.md
+sed 's/[0-9]//g' $organized | sort > organized.md
+
+diff orig.md organized.md
