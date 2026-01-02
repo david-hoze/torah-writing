@@ -75,6 +75,7 @@ def main():
 
     citation_mismatch = open("citation-mismatch.md", "w", encoding="utf-8")
     for footnote_num in sorted_footnote_sources:
+        print(f"Footnote number: {footnote_num}")
         sources_output.write(footnote_sources[footnote_num])
         lines = footnote_sources[footnote_num].split("\n")
         i = 0
@@ -83,8 +84,18 @@ def main():
         citations = []
         while i < len(footnote):
             if footnote[i] == '"' and (i == 0 or footnote[i-1] == ' '):
+                print(f"found \" in {i}")
+                i += 1
+                while not (footnote[i] == '"' and (i + 1 == len(footnote) or footnote[i + 1] in [' ', ',', '.', '?', '!', ':'])):
+                    i += 1
+                print(f"Got to the end {i}, surroundings {footnote[i - 5:i + 5]}")
                 while footnote[i] != '(': i += 1
-                while footnote[i] != ')': i += 1
+                print(f"Found ( in {i}, footnote[i - 2] = {footnote[i - 2]}")
+                if (footnote[i - 2] == '"'): # Meaning the parantheses belong to the source
+                    while footnote[i] != ')': i += 1
+                    print(f"Found closing parantheses in {i}, surroundings {footnote[i - 5:i + 5]}")
+                else:
+                    i -= 1
             else:
                 if footnote[i] == '(':
                     j = i + 1
