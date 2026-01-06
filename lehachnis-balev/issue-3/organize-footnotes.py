@@ -10,6 +10,8 @@ footnote_source_prefix = "## הערה "
 
 quote_heading_prefix = ">### "
 
+footnote_ref_prefix = "הערה "
+
 # logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(level=logging.WARNING)
 
@@ -84,17 +86,17 @@ def main():
         start = 0
         i = 0
         while i < len(footnote):
-            if footnote[i:i+5] == "הערה ":
+            if footnote[i:i+len(footnote_ref_prefix)] == footnote_ref_prefix:
                 logging.debug("Found a footnote reference")
-                j = i + 6
+                j = i + len(footnote_ref_prefix) + 1
                 while j < len(footnote) and footnote[j].isdigit(): j += 1
-                if footnote[i+6:j].isdigit():
-                    old_footnote_ref = footnote[i+5:j]
+                if footnote[i+len(footnote_ref_prefix):j].isdigit():
+                    old_footnote_ref = footnote[i+len(footnote_ref_prefix):j]
                     logging.debug(f"the old reference is {old_footnote_ref}")
                     if old_footnote_ref in footnote_translation:
                         new_footnote_ref = footnote_translation[old_footnote_ref]
                         logging.debug(f"the new reference is {new_footnote_ref}")
-                        updated_footnote += footnote[start:i+5] + str(new_footnote_ref)
+                        updated_footnote += footnote[start:i+len(footnote_ref_prefix)] + str(new_footnote_ref)
                     else:
                         updated_footnote += footnote[start:j]
                     start = j
