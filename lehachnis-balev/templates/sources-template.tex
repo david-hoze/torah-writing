@@ -1,0 +1,101 @@
+% === template‑a5.tex =========================================
+\documentclass[12pt,a4paper]{article}   % <‑‑ A5
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
+
+\setmainfont{Gisha}            % שנה לפונט הרצוי
+\newfontfamily\headingfont{David}
+
+% שולי A5 נוחים לדפדוף
+\usepackage{geometry}
+
+\geometry{
+  left=25mm, right=25mm,
+  top=30mm, bottom=30mm
+}
+
+% עיצוב הכותרת הקבועה
+\newcommand{\MainTitle}{
+  \begin{center}
+    {\headingfont\fontsize{83}{35}\selectfont להכניס בלב\hspace{0.06em}\fontsize{8}{8}\selectfont האדם\par}
+     \vspace{0.1em}
+    {\noindent \hfill \headingfont\fontsize{9}{9}\selectfont תמימות ופשיטות הדברים האלה...\hspace*{1.4cm}\par}
+     \vspace{0.1em}
+    {\noindent \hfill \headingfont\fontsize{9.5}{9.5}\selectfont ... עמוק עמוק מי ימצאנו\hspace*{1.5cm}\par}
+    {\noindent \hfill \headingfont\fontsize{4}{4}\selectfont (הקדמת ר' נתן לליקוטי הלכות)\hspace*{1.45cm}\par}
+    \vspace{0.3cm}
+% <subtitle>
+  \end{center}
+}
+
+\usepackage{sectsty}
+\sectionfont{\fontsize{20}{26}\selectfont}
+\subsectionfont{\centering\fontsize{18}{24}\selectfont}
+\subsubsectionfont{\fontsize{16}{22}\selectfont}
+
+\renewcommand{\normalsize}{\fontsize{14}{20}\selectfont}
+
+\pagestyle{plain}  % ביטול כותרות רצות ע"ג עלון
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\headingfont בס"ד בר"ה בה"ב} % ימין עליון: שם העלון
+\fancyfoot[C]{\thepage}
+
+\setcounter{secnumdepth}{0}
+
+\setlength{\parindent}{4pt}
+\setlength{\parskip}{0.3em}
+
+\newfontfamily\quotefont{David}
+
+\usepackage{changepage}
+\renewenvironment{quote}
+  {\begin{adjustwidth}{10pt}{0pt}\quotefont\normalsize}
+  {\end{adjustwidth}}
+
+\usepackage{tikzpagenodes}
+
+\renewcommand{\footnoterule}{%
+  \vspace{6pt}
+  \hbox to \textwidth{%
+    \hfill
+    \rule{0.4\columnwidth}{0.4pt}
+  }
+  % \rightline{\hrule width 0.4\columnwidth}
+  \vspace{8pt}
+}
+
+\usepackage[flushmargin, bottom]{footmisc}
+
+\setlength{\footnotemargin}{3pt}
+
+\usepackage{scrextend}
+\deffootnote{2em}{1.6em}{\thefootnotemark\hspace{10pt}}
+
+\makeatletter
+\let\orig@subsubsection\subsubsection
+\renewcommand{\subsubsection}[1]{\orig@subsubsection{\hspace{0.6em}#1}}
+\makeatother
+
+\begin{document}
+
+% <resh>
+\AddToHook{shipout/firstpage}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    % נקודת מוצא: 1 ס״מ פנימה מן הפינה
+    \draw[line width=2pt]
+      ([xshift=0cm,yshift=1cm] current page.south west)
+      -- ++(0,-1cm)   % קו אנכי
+      -- ++(1cm,0);  % קו אופקי
+  \end{tikzpicture}%
+}
+
+\MainTitle          % <‑‑ מציב את הכותרת
+$body$              % <‑‑ גוף החוברת
+
+\end{document}
+% =============================================================
