@@ -10,7 +10,8 @@ footnote_source_prefix = "## הערה "
 
 quote_heading_prefix = ">### "
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 def unite_short_items(items):
     result = []
@@ -23,7 +24,7 @@ def unite_short_items(items):
             if result:
                 result[-1] += ", " + current
             else:
-                print("Error: citation too short")
+                logging.error("Citation too short")
         i += 1
     
     return result
@@ -102,8 +103,6 @@ def main():
                 i += 1
 
         updated_footnote += footnote[start:i]
-        print("footnote:\n" + footnote)
-        print("updated_footnote:\n" + updated_footnote)
         footnotes[footnote_num] = updated_footnote
         article_output.write(footnotes[footnote_num] + "\n")
 
@@ -128,7 +127,7 @@ def main():
 
     citation_mismatch = open("citation-mismatch.md", "w", encoding="utf-8")
     for footnote_num in sorted_footnote_sources:
-        print(f"Footnote number: {footnote_num}")
+        logging.debug(f"Footnote number: {footnote_num}")
         sources_output.write(footnote_sources[footnote_num])
         lines = footnote_sources[footnote_num].split("\n")
         i = 0
@@ -137,13 +136,13 @@ def main():
         citations = []
         while i < len(footnote):
             if footnote[i] == '"' and (i == 0 or footnote[i-1] == ' '):
-                print(f"found \" in {i}")
+                logging.debug(f"found \" in {i}")
                 i += 1
                 while not (footnote[i] == '"' and (i + 1 == len(footnote) or footnote[i + 1] in [' ', ',', '.', '?', '!', ':'])):
                     i += 1
-                print(f"Got to the end {i}, surroundings {footnote[i - 5:i + 5]}")
+                logging.debug(f"Got to the end {i}, surroundings {footnote[i - 5:i + 5]}")
                 while footnote[i] != '(': i += 1
-                print(f"Found ( in {i}, footnote[i - 2] = {footnote[i - 2]}")
+                logging.debug(f"Found ( in {i}, footnote[i - 2] = {footnote[i - 2]}")
                 if (footnote[i - 2] == '"'): # Meaning the parantheses belong to the source
                     j = i + 1
                     while footnote[j] != ')': j += 1
@@ -151,7 +150,7 @@ def main():
                     if len(full_citation) > 1:
                         citations += full_citation[1:]
 
-                    print(f"Found closing parantheses in {i}, surroundings {footnote[i - 5:i + 5]}")
+                    logging.debug(f"Found closing parantheses in {i}, surroundings {footnote[i - 5:i + 5]}")
                 else:
                     i -= 1
             else:
@@ -159,7 +158,7 @@ def main():
                     j = i + 1
                     while j < len(footnote) and footnote[j] != ')': j += 1
                     if j == len(footnote):
-                        print(f"Warning, unclosed parantheses in footnote {footnote_num}!")
+                        logging.warning(f"unclosed parantheses in footnote {footnote_num}!")
                     else:
                         citations += get_citations(footnote[i+1:j])
                     i = j
