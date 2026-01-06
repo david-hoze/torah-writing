@@ -1,7 +1,7 @@
 #!/bin/sh
 
-orig="leharim-et-haperurim.md"
-origSrc="leharim-et-haperurim-sources.md"
+orig="article.md"
+origSrc="sources.md"
 organized="article_output.md"
 organizedSrc="sources_output.md"
 
