@@ -56,6 +56,16 @@
 
 \usepackage{tikzpagenodes}
 
+\renewcommand{\footnoterule}{%
+  \kern -3pt
+  \hbox to \textwidth{%
+    \hfill
+    \rule{0.4\columnwidth}{0.4pt}
+  }
+  % \rightline{\hrule width 0.4\columnwidth}
+  \kern 2.6pt
+}
+
 \begin{document}
 
 % <resh>
