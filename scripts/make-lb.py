@@ -14,8 +14,10 @@ def split_title(h1: str):
     return part.strip(), sub.strip()
 
 def main():
-    md_path = Path("article.md")
-    tpl_path = Path(helper_functions.get_git_root() + "/lehachnis-balev/templates/template.tex")
+    if len(sys.argv) < 3:
+        sys.exit("usage: make_taaluma.py <markdown.md> <template.tex>")
+    md_path = Path(sys.argv[1])
+    tpl_path = Path(helper_functions.get_git_root() + "/lehachnis-balev/templates/" + sys.argv[2])
     if not md_path.exists(): sys.exit(f"Markdown '{md_path}' not found")
     if not tpl_path.exists(): sys.exit(f"Template '{tpl_path}' not found")
 
