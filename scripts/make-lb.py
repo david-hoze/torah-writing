@@ -25,40 +25,42 @@ def main():
     with md_path.open(encoding="utf-8") as f:
         lines = f.readlines()
 
-    h1_line = next((ln for ln in lines if ln.lstrip().startswith("#")), "")
-    if not h1_line:
-        sys.exit("No H1 heading found in markdown")
-    h1_text = h1_line.lstrip("#").strip()
-    part, subtitle = split_title(h1_text)
-
-    # remove the H1 from markdown body
-    body_lines = [ln for ln in lines if ln is not h1_line]
-
     # --- create temp files --------------------------------------------------
     tmp_dir = tempfile.mkdtemp(prefix="taaluma_")
     md_tmp  = Path(tmp_dir) / "body.md"
     tpl_tmp = Path(tmp_dir) / "template.tex"
 
-    md_tmp.write_text("".join(body_lines), encoding="utf-8")
-
     # inject title block after \begin{document}
-    title_block = rf"""
-\begin{{center}}
-  {{\headingfont\fontsize{{47}}{{19}}\selectfont {part}\par}}
-  {{\headingfont\fontsize{{20}}{{19}}\selectfont {subtitle}\par}}
-\end{{center}}\vspace{{1cm}}
-"""
-    with tpl_path.open(encoding="utf-8") as f_in, tpl_tmp.open("w", encoding="utf-8") as f_out:
-        for line in f_in:
-            f_out.write(line)
-            if line.strip() == r"% <subtitle>":
-                f_out.write(title_block)
+    tpl = None
+    h1_line = next((ln for ln in lines if ln.lstrip().startswith("# ")), "")
+    if h1_line:
+        h1_text = h1_line.lstrip("# ").strip()
+        part, subtitle = split_title(h1_text)
+        title_block = rf"""
+    \begin{{center}}
+    {{\headingfont\fontsize{{47}}{{19}}\selectfont {part}\par}}
+    {{\headingfont\fontsize{{20}}{{19}}\selectfont {subtitle}\par}}
+    \end{{center}}\vspace{{1cm}}
+    """
+        with tpl_path.open(encoding="utf-8") as f_in, tpl_tmp.open("w", encoding="utf-8") as f_out:
+            for line in f_in:
+                f_out.write(line)
+                if line.strip() == r"% <subtitle>":
+                    f_out.write(title_block)
+        tpl = tpl_tmp
+    else:
+        tpl = tpl_path
+
+    # remove the H1 from markdown body
+    body_lines = [ln for ln in lines if ln is not h1_line]
+
+    md_tmp.write_text("".join(body_lines), encoding="utf-8")
 
     # --- run pandoc ---------------------------------------------------------
     pdf_out = md_path.with_suffix(".pdf")
     cmd = [
         "pandoc", str(md_tmp),
-        "--template", str(tpl_tmp),
+        "--template", str(tpl),
         "--pdf-engine", "xelatex",
         "-o", str(pdf_out)
     ]
