@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # organize-footnotes.py – Make unsorted Markdown footnotes ordered
-import sys
+import sys, logging
 from pathlib import Path
 
 # For testing
@@ -9,6 +9,8 @@ from pathlib import Path
 footnote_source_prefix = "## הערה "
 
 quote_heading_prefix = ">### "
+
+logging.basicConfig(level=logging.DEBUG)
 
 def unite_short_items(items):
     result = []
@@ -76,6 +78,33 @@ def main():
 
     sorted_footnotes = sorted(footnotes)
     for footnote_num in sorted_footnotes:
+        footnote = footnotes[footnote_num]
+        updated_footnote = ""
+        start = 0
+        i = 0
+        while i < len(footnote):
+            if footnote[i:i+5] == "הערה ":
+                logging.debug("Found a footnote reference")
+                j = i + 6
+                while j < len(footnote) and footnote[j].isdigit(): j += 1
+                if footnote[i+6:j].isdigit():
+                    old_footnote_ref = footnote[i+5:j]
+                    logging.debug(f"the old reference is {old_footnote_ref}")
+                    if old_footnote_ref in footnote_translation:
+                        new_footnote_ref = footnote_translation[old_footnote_ref]
+                        logging.debug(f"the new reference is {new_footnote_ref}")
+                        updated_footnote += footnote[start:i+5] + str(new_footnote_ref)
+                    else:
+                        updated_footnote += footnote[start:j]
+                    start = j
+                    i = j + 1
+            else:
+                i += 1
+
+        updated_footnote += footnote[start:i]
+        print("footnote:\n" + footnote)
+        print("updated_footnote:\n" + updated_footnote)
+        footnotes[footnote_num] = updated_footnote
         article_output.write(footnotes[footnote_num] + "\n")
 
     if not sources:
@@ -128,8 +157,11 @@ def main():
             else:
                 if footnote[i] == '(':
                     j = i + 1
-                    while footnote[j] != ')': j += 1
-                    citations += get_citations(footnote[i+1:j])
+                    while j < len(footnote) and footnote[j] != ')': j += 1
+                    if j == len(footnote):
+                        print(f"Warning, unclosed parantheses in footnote {footnote_num}!")
+                    else:
+                        citations += get_citations(footnote[i+1:j])
                     i = j
             i += 1
 
