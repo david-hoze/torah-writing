@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # make_taaluma.py  –  build A4/A5 PDF from Markdown + template.tex
-import sys, os, tempfile, subprocess, shutil, re
+import sys, os, tempfile, subprocess, shutil, re, helper_functions
 from pathlib import Path
 
 def split_title(h1: str):
@@ -14,10 +14,8 @@ def split_title(h1: str):
     return part.strip(), sub.strip()
 
 def main():
-    if len(sys.argv) < 2:
-        sys.exit("usage: make_taaluma.py <markdown.md> [template.tex]")
-    md_path = Path(sys.argv[1])
-    tpl_path = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("template.tex")
+    md_path = Path("article.md")
+    tpl_path = Path(helper_functions.get_git_root() + "/lehachnis-balev/templates/template.tex")
     if not md_path.exists(): sys.exit(f"Markdown '{md_path}' not found")
     if not tpl_path.exists(): sys.exit(f"Template '{tpl_path}' not found")
 

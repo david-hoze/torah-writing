@@ -15,3 +15,6 @@ scratch.md
 article_output.md
 sources_output.md
 citation-mismatch.md
+
+# Compiled python files
+*.pyc
