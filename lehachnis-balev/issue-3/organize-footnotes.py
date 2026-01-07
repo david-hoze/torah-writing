@@ -65,6 +65,9 @@ def main():
                     orig_footnote_num += ln[j]
                     j += 1
                 if ln[j + 1] == ":" and i == 0:
+                    if orig_footnote_num not in footnote_translation:
+                        logging.warning(f"definition without reference: {orig_footnote_num}")
+                        break
                     new_footnote_num = footnote_translation[orig_footnote_num]
                     footnotes[new_footnote_num] = "[^" + str(new_footnote_num) + "]:" + ln[j + 2:]
                     break
