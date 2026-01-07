@@ -101,7 +101,7 @@ def load_sources(sources_text: str, translation: dict):
                 current = None
                 continue
             new = translation[old]
-            sources[new] = FOOTNOTE_SOURCE_PREFIX + new + "\n"
+            sources[new] = FOOTNOTE_SOURCE_PREFIX + str(new) + "\n"
             current = new
         elif current is not None:
             sources[current] += line
