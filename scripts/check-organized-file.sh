@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 squeeze-new-lines.sh $1
 squeeze-new-lines.sh $2
