@@ -1,7 +1,7 @@
 #/bin/sh
 
-./squeeze-new-lines.sh $1
-./squeeze-new-lines.sh $2
+squeeze-new-lines.sh $1
+squeeze-new-lines.sh $2
 
 echo lines, words, chars
 wc $1
