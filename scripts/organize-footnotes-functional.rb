@@ -3,16 +3,6 @@
 
 FOOTNOTE_SOURCE_PREFIX = "## הערה "
 
-text = "Some text[^2] is nice[^1]\n \n[^1]: nice\n[^2]: text\n"
-
-sources = <<~HEREDOC
-# Sources
-## footnote 1
-  nice
-## footnote 2 
-  text
-HEREDOC
-
 abort "usage: script.rb <article.md> [sources.md]" if ARGV.empty?
 
 text = File.read(ARGV[0], encoding: "UTF-8")
