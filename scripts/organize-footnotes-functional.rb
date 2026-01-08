@@ -48,19 +48,21 @@ end
 
 sources = File.read(ARGV[1], encoding: "UTF-8")
 ordered_sources = sources
-  .scan(/^## footnote (\d+)|(^(?!## footnote \d+).*)/)
+  .scan(/^## הערה (\d+)|(^(?!## הערה \d+).*)/)
   .reduce([[0,""]]) do |acc, (footnote, text)|
     if footnote
-      acc << [mapping[footnote.to_i], ""]  # start new footnote entry
+      if mapping[footnote.to_i].nil?
+        warn "Unknown footnote source #{footnote}"
+      else
+        acc << [mapping[footnote.to_i], ""]  # start new footnote entry
+      end
     elsif !acc.empty?
       acc[-1][1] << text + "\n"  # append to current footnote text
     end
     acc
   end
   .sort_by { |num, _| num }
-  .map { |num, content| num != 0 ? "#{FOOTNOTE_SOURCE_PREFIX}#{num}\n#{content.strip}\n" : content.strip }
+  .map { |num, content| num != 0 ? "#{FOOTNOTE_SOURCE_PREFIX}#{num}\n\n#{content.strip}\n" : content.strip }
   .join("\n")
-
-# puts ordered_sources
 
 File.write("sources_output.md", ordered_sources)
