@@ -21,6 +21,7 @@ ordered_footnotes = ordered_text.
   .sort_by { |num, _| num.to_i }
   .map { |num, content| "[^#{num}]:#{content}" }
   .join("\n\n")
+  .gsub(/הערה (\d+)/) { "הערה #{mapping[$1.to_i]}" }
 
 ordered_text = ordered_text
   .gsub(/^\[\^(\d+)\]:(.*)$/) { "" }.strip
