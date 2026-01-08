@@ -53,4 +53,39 @@ ordered_sources = sources
   .map { |num, content| num != 0 ? "#{FOOTNOTE_SOURCE_PREFIX}#{num}\n\n#{content.strip}\n" : content.strip }
   .join("\n")
 
+footnote_citations = ordered_footnotes
+  .scan(/^\[\^(\d+)\]:(.*)$/)
+  .reduce({}) do |acc, (num, content)|
+    citations = content
+      .gsub(/"[^"]+"\s+\([^)]+\)/, "")
+      .scan(/\(([^)]+)\)/)
+      .map do |citation_group|
+        citation_group[0]
+          .split(",")
+          .map{_1.strip.gsub(/וע?"ע"?/,"").strip}
+          .each_with_object([]){|p,a| p.size<=5 && a.any? ? a[-1]<<", #{p}" : a<<p}
+      end
+      .flatten
+
+    acc[num.to_i] = citations
+    acc
+  end
+
+p footnote_citations
+
+current_footnote = nil
+sources_footnote_citations = ordered_sources
+  .scan(/^## הערה (\d+)|^### (.*)/)
+  .reduce({}) do |acc, (footnote, citation)|
+    if footnote
+      current_footnote = footnote.to_i
+      acc[current_footnote] ||= []
+    elsif citation && current_footnote
+      acc[current_footnote] << citation.strip
+    end
+    acc
+  end
+
+p sources_footnote_citations
+
 File.write("sources_output.md", ordered_sources)
