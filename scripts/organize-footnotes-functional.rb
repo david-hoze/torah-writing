@@ -14,10 +14,7 @@ mapping = text
   .zip((1..).lazy)
   .to_h
 
-ordered_text = text
-  .scan(/(\[\^(\d+)\])|([^\[]+)/)
-  .map { |ref, ref_num, other| ref ? "[^#{mapping[ref_num.to_i]}]" : other }
-  .join
+ordered_text = text.gsub(/\[\^(\d+)\]/) { "[^#{mapping[$1.to_i]}]" }
 
 ordered_footnotes = ordered_text.
   scan(/^\[\^(\d+)\]:(.*)$/)
