@@ -30,15 +30,17 @@ class String
     quotation_count = 0
     i = 0
     out = ""
+    debug = false
     while i < self.length
-      # puts "At position #{i}, char is '#{self[i]}', quotation_count is #{quotation_count}"
+      puts "At position #{i}, char is '#{self[i]}', quotation_count is #{quotation_count}" if debug
       if self[i] == '"' && (i == 0 || self[i-1] =~ non_text)
+        puts "Found opening quotation at #{i}" if debug
         quotation_count = 1
         j = i + 1
         while j < self.length
           if self[j] == '"' && self[j+1] =~ non_text
-            # puts "Found closing quotation at #{j}"
-            # puts "quotation_count is #{quotation_count}"
+            puts "Found closing quotation at #{j}" if debug
+            puts "quotation_count is #{quotation_count}" if debug
             quotation_count -= 1
             j += 1
             next
@@ -53,12 +55,17 @@ class String
           end
           j += 1
         end
-        # puts "Matched quotation from #{i} to #{j}"
-        # puts self[i..j-1]
-        match = self[j..-1].match(/\s*\([^)]+\)/)
+        puts "Matched quotation from #{i} to #{j}" if debug
+        puts self[i..j-1] if debug
+        puts "Matching text: '#{self[j..-1]}' for parentheses" if debug
+        match = self[j..-1].match(/^\s*\([^)]+\)/)
         if match
+          puts "Also found following parentheses: '#{match[0]}'" if debug
+          puts "Removed text: '#{self[i..(j + match[0].length - 1)]}'" if debug
           i = j + match[0].length
+          puts "Removing quotation and following parentheses, moving to position #{i}" if debug
         else
+          puts "No following parentheses, keeping quotation" if debug
           out << self[i..j]
           i = j + 1
         end
@@ -67,7 +74,8 @@ class String
         i += 1
       end
     end
-    # puts "Resulting text:"
+    puts "Resulting text:" if debug
+    puts out if debug
     out
   end
 end
@@ -118,7 +126,7 @@ footnote_citations = ordered_footnotes
         citation_group[0]
           .split(",")
           .map{_1.strip.gsub(/וע?"ע"?/,"").strip}
-          .each_with_object([]){|p,a| p.size<=5 && a.any? ? a[-1]<<", #{p}" : a<<p}
+          .each_with_object([]){|p,a| p.size<=8 && a.any? ? a[-1]<<", #{p}" : a<<p}
       end
       .flatten
 
