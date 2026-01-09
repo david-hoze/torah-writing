@@ -40,7 +40,7 @@ module MyHelpers
         puts "Contains section indicator"
         return true
       end
-      if rest =~ /\s+#{$marked_hebrew_number}\s+/
+      if rest =~ /\s+#{$marked_hebrew_number}(\s+|$)/
         puts "Contains Hebrew number"
         return true
       end
