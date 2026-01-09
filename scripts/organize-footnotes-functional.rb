@@ -71,8 +71,6 @@ footnote_citations = ordered_footnotes
     acc
   end
 
-p footnote_citations
-
 current_footnote = nil
 sources_footnote_citations = ordered_sources
   .scan(/^## הערה (\d+)|^### (.*)/)
@@ -86,6 +84,15 @@ sources_footnote_citations = ordered_sources
     acc
   end
 
-p sources_footnote_citations
+File.write(
+  "citation-mismatch.md",
+  footnote_citations.sort
+    .map { |k,v| [k, v, sources_footnote_citations.fetch(k, [])] }
+    .reject { |_,a,b| a == b }
+    .map { |n,a,b|
+      "Footnote #{n}\nExpected:\n#{a.join("\n")}\nFound:\n#{b.join("\n")}\n"
+    }
+    .join("\n")
+)
 
 File.write("sources_output.md", ordered_sources)
