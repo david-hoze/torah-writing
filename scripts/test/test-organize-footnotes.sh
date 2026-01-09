@@ -29,10 +29,11 @@ $1 article-unordered-citation-mismatch.md sources-unordered-citation-mismatch.md
 
 if diff -B -b citation-mismatch.md expected-citation-mismatch.md >/dev/null; then
     echo citation mismatch test passed
+    rm citation-mismatch.md
 else
     echo citation mismatch not passed
     mv citation-mismatch.md citation-mismatch-failed.md
     WinMergeU.exe expected-citation-mismatch.md citation-mismatch-failed.md
 fi
 
-rm article_output.md sources_output.md citation-mismatch.md
+rm article_output.md sources_output.md
