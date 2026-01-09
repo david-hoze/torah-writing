@@ -23,8 +23,63 @@ ordered_footnotes = ordered_text.
   .join("\n\n")
   .gsub(/הערה (\d+)/) { "הערה #{mapping[$1.to_i]}" }
 
+
+class String
+  def remove_quotations_with_following_parentheses
+    non_text = /[^\p{L}\p{N}]/
+    quotation_count = 0
+    i = 0
+    out = ""
+    while i < self.length
+      # puts "At position #{i}, char is '#{self[i]}', quotation_count is #{quotation_count}"
+      if self[i] == '"' && (i == 0 || self[i-1] =~ non_text)
+        quotation_count = 1
+        j = i + 1
+        while j < self.length
+          if self[j] == '"' && self[j+1] =~ non_text
+            # puts "Found closing quotation at #{j}"
+            # puts "quotation_count is #{quotation_count}"
+            quotation_count -= 1
+            j += 1
+            next
+          end
+          if self[j] == '"' && self[j-1] =~ non_text
+            quotation_count += 1
+            j += 1
+            next
+          end
+          if quotation_count == 0
+            break
+          end
+          j += 1
+        end
+        # puts "Matched quotation from #{i} to #{j}"
+        # puts self[i..j-1]
+        match = self[j..-1].match(/\s*\([^)]+\)/)
+        if match
+          i = j + match[0].length
+        else
+          out << self[i..j]
+          i = j + 1
+        end
+      else
+        out << self[i]
+        i += 1
+      end
+    end
+    # puts "Resulting text:"
+    out
+  end
+end
+
+# test_text = %Q{"You need to (capture): "this", text (because): "it's a well" balanced (quotes): 'with inner quotes'" (and also the parantheses following), but not capture this text, 'cause it's not a quote right? (even though it has parantheses following it). "Also, capture this, it's also quotes" (followed by parantheses).}
+
+# puts test_text.remove_quotations_with_following_parentheses()
+# return
+
+
 ordered_text = ordered_text
-  .gsub(/^\[\^(\d+)\]:(.*)$/) { "" }.strip
+  .remove_quotations_with_following_parentheses()
   .concat("\n\n")
   .concat(ordered_footnotes)
 
@@ -57,7 +112,7 @@ footnote_citations = ordered_footnotes
   .scan(/^\[\^(\d+)\]:(.*)$/)
   .reduce({}) do |acc, (num, content)|
     citations = content
-      .gsub(/"[^"]+"\s+\([^)]+\)/, "")
+      .gsub(/"(?:[^"]|"(?=[א-ת]))*"\s+\([^)]+\)/, "")
       .scan(/\(([^)]+)\)/)
       .map do |citation_group|
         citation_group[0]
