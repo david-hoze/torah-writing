@@ -26,7 +26,7 @@ ordered_footnotes = ordered_text.
 
 class String
   def remove_quotations_with_following_parentheses
-    non_text = /[^\p{L}\p{N}]/
+    non_text = /[^\p{L}\p{N}\p{M}]/
     quotation_count = 0
     i = 0
     out = ""
