@@ -79,7 +79,7 @@ end
 
 
 ordered_text = ordered_text
-  .remove_quotations_with_following_parentheses()
+  .gsub(/^\[\^(\d+)\]:(.*)$/) { "" }.strip
   .concat("\n\n")
   .concat(ordered_footnotes)
 
@@ -112,7 +112,7 @@ footnote_citations = ordered_footnotes
   .scan(/^\[\^(\d+)\]:(.*)$/)
   .reduce({}) do |acc, (num, content)|
     citations = content
-      .gsub(/"(?:[^"]|"(?=[א-ת]))*"\s+\([^)]+\)/, "")
+      .remove_quotations_with_following_parentheses()
       .scan(/\(([^)]+)\)/)
       .map do |citation_group|
         citation_group[0]
