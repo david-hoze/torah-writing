@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
+require_relative 'helpers'
+include MyHelpers
+
 FOOTNOTE_SOURCE_PREFIX = "## הערה "
 
 abort "usage: script.rb <article.md> [sources.md]" if ARGV.empty?
@@ -125,10 +128,11 @@ footnote_citations = ordered_footnotes
       .map do |citation_group|
         citation_group[0]
           .split(",")
-          .map{_1.strip.gsub(/וע?"ע"?/,"").strip}
+          .map{_1.strip.gsub(/ו?ע"ע/,"").strip}
           .each_with_object([]){|p,a| p.size<=8 && a.any? ? a[-1]<<", #{p}" : a<<p}
       end
       .flatten
+      .select { |c| MyHelpers.is_citation(c) }
 
     acc[num.to_i] = citations
     acc
