@@ -27,39 +27,31 @@ module MyHelpers
   $hebrew_number = /[א-ת]'?|[א-ת]"?[א-ת]|[א-ת][א-ת]"?[א-ת]/
   $marked_hebrew_number = /[א-ת]'|[א-ת]"[א-ת]|[א-ת][א-ת]"[א-ת]/
   def self.is_citation(text)
-    puts "Checking if '#{text}' is a citation"
-    puts text
+    debug = false
+    puts "Checking if '#{text}' is a citation" if debug
+    puts text if debug
     if text =~ /תורה #{$hebrew_number}/
-      puts "Matched Likutei Moharan citation"
+      puts "Matched Likutei Moharan citation" if debug
       return true
     end
     if book = $books.find { |b| text.start_with?(b) }
-      puts "Found a match! The book is: #{book}"
+      puts "Found a match! The book is: #{book}" if debug
       rest = text[book.length..-1]
       if rest =~ /\sסעיף|פרק|דף|עמוד|משנה|גמרא|הלכה|הלכות|אות|סימן|פרק|שער|הקדמה|פרשת|ערך|מצוות\s/
-        puts "Contains section indicator"
+        puts "Contains section indicator" if debug
         return true
       end
       if rest =~ /\s+#{$marked_hebrew_number}(\s+|$)/
-        puts "Contains Hebrew number"
+        puts "Contains Hebrew number" if debug
         return true
       end
-      puts "No identifiers found after book name"
+      puts "No identifiers found after book name" if debug
       return false
     end
     if $halachot.any? { |halacha| text.start_with?(halacha) && text[halacha.length..-1] =~ /\s+([א-י]'?\s)?(אות\s#{$hebrew_number}|בהתחלה)/ }
-      puts "Matched halacha citation"
+      puts "Matched halacha citation" if debug
       return true
     end
     false
   end
 end
-
-include MyHelpers
-# Example usage:
-# puts
-
-puts MyHelpers.is_citation(%q(תפילין ה' אות כ"ד))  # => true
-puts MyHelpers.is_citation(%q(סביבון))  # => false
-puts MyHelpers.find_git_root()
-

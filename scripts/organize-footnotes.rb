@@ -61,9 +61,15 @@ class String
         puts "Matched quotation from #{i} to #{j}" if debug
         puts self[i..j-1] if debug
         puts "Matching text: '#{self[j..-1]}' for parentheses" if debug
-        match = self[j..-1].match(/^\s*\([^)]+\)/)
+        match = self[j..-1].match(/^\s*\(([^)]+)\)/)
         if match
           puts "Also found following parentheses: '#{match[0]}'" if debug
+          puts "Checking if there are more than one citation inside" if debug
+          citations = handle_citation_group(match[1]).select { |c| MyHelpers.is_citation(c) }
+          if citations.count > 1
+            puts "More than one citation found, keeping rest of citations" if debug
+            out << "טקסט בשביל הציטוטים" << "(" << citations[1..-1].join(", ") << ")"
+          end
           puts "Removed text: '#{self[i..(j + match[0].length - 1)]}'" if debug
           i = j + match[0].length
           puts "Removing quotation and following parentheses, moving to position #{i}" if debug
@@ -119,18 +125,20 @@ ordered_sources = sources
   .map { |num, content| num != 0 ? "#{FOOTNOTE_SOURCE_PREFIX}#{num}\n\n#{content.strip}\n" : content.strip }
   .join("\n")
 
+def handle_citation_group(citation_group)
+  citation_group
+    .split(",")
+    .map{_1.strip.gsub(/ו?ע"ע/,"").strip}
+    .each_with_object([]){|p,a| p.size<=8 && a.any? ? a[-1]<<", #{p}" : a<<p}
+end
+
 footnote_citations = ordered_footnotes
   .scan(/^\[\^(\d+)\]:(.*)$/)
   .reduce({}) do |acc, (num, content)|
     citations = content
       .remove_quotations_with_following_parentheses()
       .scan(/\(([^)]+)\)/)
-      .map do |citation_group|
-        citation_group[0]
-          .split(",")
-          .map{_1.strip.gsub(/ו?ע"ע/,"").strip}
-          .each_with_object([]){|p,a| p.size<=8 && a.any? ? a[-1]<<", #{p}" : a<<p}
-      end
+      .map { handle_citation_group(_1[0]) }
       .flatten
       .select { |c| MyHelpers.is_citation(c) }
 
