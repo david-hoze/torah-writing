@@ -26,16 +26,6 @@ def split_title(h1)
   [part.to_s.strip, sub.to_s.strip]
 end
 
-def to_linux_path(win_path)
-  # 1. Replace backslashes with forward slashes
-  path = win_path.tr('\\', '/')
-  
-  # 2. Convert "C:/" to "/mnt/c/" (Common for WSL/Docker)
-  path.gsub!(/^([A-Za-z]):\//) { "/#{$1.downcase}/" }
-  
-  path
-end
-
 def main
   if ARGV.length < 2
     abort "usage: make_taaluma.rb <markdown.md> <template.tex>"
@@ -93,8 +83,8 @@ def main
     # --- run pandoc ---------------------------------------------------------
     pdf_out = md_path.sub_ext(".pdf")
     cmd = [
-      "pandoc", to_linux_path(md_tmp.to_s),
-      "--template", to_linux_path(tpl.to_s),
+      "pandoc", md_tmp.to_s,
+      "--template", tpl.to_s,
       "--pdf-engine", "xelatex",
       "-o", pdf_out.to_s
     ]
