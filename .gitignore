@@ -19,3 +19,6 @@ citation-mismatch.md
 # Compiled python files
 *.pyc
 __pycache__/
+
+# Playground files
+scripts/playground/*
