@@ -6,6 +6,7 @@ require 'tmpdir'
 require 'pathname'
 require 'open3'
 require 'debug'
+require_relative 'helpers'
 
 # If you have a separate file for this, you can require_relative 'helper_functions'
 module HelperFunctions
@@ -64,15 +65,32 @@ def main
 
     # --- run pandoc ---------------------------------------------------------
     pdf_out = md_path.sub_ext(".pdf")
+    tex_out = md_path.sub_ext(".tex")
     cmd = [
       "pandoc", md_tmp.to_s,
       "--template", tpl.to_s,
-      "--pdf-engine", "xelatex",
-      "-o", pdf_out.to_s
+      # "--pdf-engine", "xelatex",
+      # "-o", pdf_out.to_s
+      "-o", tex_out.to_s
     ]
 
     puts "Running Pandoc..."
     puts cmd.join(" ")
+    system(*cmd) || abort("Pandoc failed to generate LaTeX file")
+
+    tex_content = File.read(tex_out, encoding: "utf-8")
+      .gsub /\(([^\(]*)\)/ do |match|
+        MyHelpers.is_citation($1) ? "{\\small #{match}}" : match
+        # puts $1
+        # puts match
+      end
+
+    File.write(tex_out, tex_content, encoding: "utf-8")
+
+    cmd = [
+      "xelatex", tex_out.to_s
+    ]
+
     system(*cmd) || abort("Pandoc failed to generate PDF")
 
     # --- open the PDF -------------------------------------------------------
