@@ -144,12 +144,6 @@ Expected:
 Found:
 
 
-Footnote 67
-Expected:
-ישעיה י"א ה
-Found:
-
-
 Footnote 72
 Expected:
 תורה ח' אות ב'
