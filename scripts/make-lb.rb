@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# make_taaluma.rb – build A4/A5 PDF from Markdown + template.tex
+# make_lb.rb – build A4/A5 PDF from Markdown + template.tex
 
 require 'fileutils'
 require 'tmpdir'
@@ -16,7 +16,7 @@ end
 
 def main
   if ARGV.length < 2
-    abort "usage: make_taaluma.rb <markdown.md> <template.tex>"
+    abort "usage: make_lb.rb <markdown.md> <template.tex>"
   end
 
   md_path = Pathname.new(ARGV[0])
@@ -31,7 +31,7 @@ def main
   lines = File.readlines(md_path, encoding: "utf-8")
 
   # --- create temp files --------------------------------------------------
-  Dir.mktmpdir("taaluma_") do |tmp_dir|
+  Dir.mktmpdir("lb_") do |tmp_dir|
     tmp_path = Pathname.new(tmp_dir)
     
     md_tmp   = tmp_path + "body.md"
