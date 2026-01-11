@@ -11,9 +11,9 @@ abort "usage: script.rb <article.md> [sources.md]" if ARGV.empty?
 text = File.read(ARGV[0], encoding: "UTF-8")
 
 mapping = text
-  .scan(/(\[\^\d+\])/)
+  .scan(/\[\^(\d+)\]/)
   .uniq
-  .map { _1[0][2..-2].to_i }  # slice "[^n]" -> n
+  .map { _1[0].to_i }  # slice "[^n]" -> n
   .zip((1..).lazy)
   .to_h
 
