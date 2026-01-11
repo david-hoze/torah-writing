@@ -14,18 +14,6 @@ module HelperFunctions
   end
 end
 
-def split_title(h1)
-  # Return (part, subtitle) split at first dash
-  if h1.include?(" - ")
-    part, sub = h1.split(" - ", 2)
-  elsif h1.include?("-")
-    part, sub = h1.split("-", 2)
-  else
-    part, sub = h1, ""
-  end
-  [part.to_s.strip, sub.to_s.strip]
-end
-
 def main
   if ARGV.length < 2
     abort "usage: make_taaluma.rb <markdown.md> <template.tex>"
@@ -55,7 +43,7 @@ def main
 
     if h1_line
       h1_text = h1_line.lstrip.delete_prefix("# ").strip
-      part, subtitle = split_title(h1_text)
+      part, subtitle = h1_text.split(/\s*-\s*/)
 
       title_block = <<~LATEX
         \\begin{center}
