@@ -44,7 +44,7 @@ def remove_quotations_with_following_parentheses(text)
     puts "Matched parentheses: '#{$~[:paren_inner_text]}'" if debug
     citations = handle_citation_group($~[:paren_inner_text]).select { |c| MyHelpers.is_citation(c) }
     puts "Citations found: #{citations.inspect}" if debug
-    citations.count <= 1 ? "" : "טקסט בשביל הציטוטים" << "(" << citations[1..-1].join(", ") << ")"
+    citations.count <= 1 ? "" : "טקסט בשביל הציטוטים (#{citations[1..-1].join(", ")})"
   end
 end
 
