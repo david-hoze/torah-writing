@@ -42,7 +42,7 @@ def remove_quotations_with_following_parentheses(text)
   text.gsub(/#{BALANCED_QUOTES}\s*#{PARANTHESES}/) do 
     puts "Matched quotation: '#{$~[:quotation]}'" if debug
     puts "Matched parentheses: '#{$~[:paren_inner_text]}'" if debug
-    citations = handle_citation_group($~[:paren_inner_text]).select { |c| MyHelpers.is_citation(c) }
+    citations = normalize_citation_group($~[:paren_inner_text]).select { |c| MyHelpers.is_citation(c) }
     puts "Citations found: #{citations.inspect}" if debug
     citations.count <= 1 ? "" : "טקסט בשביל הציטוטים (#{citations[1..-1].join(", ")})"
   end
@@ -78,7 +78,7 @@ ordered_sources = sources
   .map { |num, content| num != 0 ? "#{FOOTNOTE_SOURCE_PREFIX}#{num}\n\n#{content.strip}\n" : content.strip }
   .join("\n")
 
-def handle_citation_group(citation_group)
+def normalize_citation_group(citation_group)
   citation_group
     .split(",")
     .map{_1.strip.gsub(/ו?ע"ע/,"").strip}
@@ -91,7 +91,7 @@ footnote_citations = ordered_footnotes
     citations = content
       .then { remove_quotations_with_following_parentheses(_1) }
       .scan(/\(([^)]+)\)/)
-      .map { handle_citation_group(_1[0]) }
+      .map { normalize_citation_group(_1[0]) }
       .flatten
       .select { |c| MyHelpers.is_citation(c) }
 
