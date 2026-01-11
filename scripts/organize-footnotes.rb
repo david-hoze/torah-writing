@@ -5,6 +5,16 @@ require_relative 'helpers'
 include MyHelpers
 
 FOOTNOTE_SOURCE_PREFIX = "## הערה "
+NON_TEXT_CHAR = /[^\p{L}\p{N}\p{M}]/
+TEXT_CHAR = /[\p{L}\p{N}\p{M}]/
+
+LEFT  = /(?<=#{NON_TEXT_CHAR}|^)"/
+RIGHT = /"(?=#{NON_TEXT_CHAR}|$)/
+HEBREW_ABBREVIATION = /#{TEXT_CHAR}"#{TEXT_CHAR}/
+
+BALANCED_QUOTES = /(?<quotation> #{LEFT} (?: \g<quotation> | [^"] | #{HEBREW_ABBREVIATION} )* #{RIGHT} )/x
+PARANTHESES = /(?<parentheses>\s*\((?<paren_inner_text>[^)]+)\))/
+
 
 abort "usage: script.rb <article.md> [sources.md]" if ARGV.empty?
 
@@ -28,17 +38,8 @@ ordered_footnotes = ordered_text.
 
 
 def remove_quotations_with_following_parentheses(text)
-  non_text_char = /[^\p{L}\p{N}\p{M}]/
-  text_char = /[\p{L}\p{N}\p{M}]/
-  
-  left  = /(?<=#{non_text_char}|^)"/
-  right = /"(?=#{non_text_char}|$)/
-  hebrew_abbreviation = /#{text_char}"#{text_char}/
-
-  balanced_quotes = /(?<quotation> #{left} (?: \g<quotation> | [^"] | #{hebrew_abbreviation} )* #{right} )/x
-  parantheses = /(?<parentheses>\s*\((?<paren_inner_text>[^)]+)\))/
   debug = false
-  text.gsub(/#{balanced_quotes}\s*#{parantheses}/) do 
+  text.gsub(/#{BALANCED_QUOTES}\s*#{PARANTHESES}/) do 
     puts "Matched quotation: '#{$~[:quotation]}'" if debug
     puts "Matched parentheses: '#{$~[:paren_inner_text]}'" if debug
     citations = handle_citation_group($~[:paren_inner_text]).select { |c| MyHelpers.is_citation(c) }
