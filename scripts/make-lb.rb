@@ -52,15 +52,9 @@ def main
         \\end{center}\\vspace{1cm}
       LATEX
 
-      File.open(tpl_tmp, "w", encoding: "utf-8") do |f_out|
-        File.foreach(tpl_path) do |line|
-          puts line
-          f_out.write(line)
-          if line.strip == "% <subtitle>"
-            f_out.write(title_block)
-          end
-        end
-      end
+      updated_content = File.read(tpl_path, encoding: "utf-8")
+        .sub("% <subtitle>", title_block)
+      File.write(tpl_tmp, updated_content, encoding: "utf-8")
       tpl = tpl_tmp
     end
 
