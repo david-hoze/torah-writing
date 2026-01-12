@@ -26,6 +26,7 @@ module MyHelpers
 
   $hebrew_number = /[א-ת]'?|[א-ת]"?[א-ת]|[א-ת][א-ת]"?[א-ת]/
   $marked_hebrew_number = /[א-ת]'|[א-ת]"[א-ת]|[א-ת][א-ת]"[א-ת]/
+  $gemara_page_ref = /([א-ת]|[א-ת][א-ת]|[א-ת][א-ת][א-ת])(.|:)/
   def self.is_citation(text)
     debug = false
     puts "Checking if '#{text}' is a citation" if debug
@@ -34,11 +35,11 @@ module MyHelpers
       puts "Matched Likutei Moharan citation" if debug
       return true
     end
-    if book = $books.find { |b| text.start_with?(b) }
+    if book = $books.find { |b| text.start_with?(b) } || text.start_with?("שם ")
       puts "Found a match! The book is: #{book}" if debug
       rest = text[book.length..-1]
       if rest == " שם"
-        puts "Contains reference to the above"
+        puts "Contains reference to the above" if debug
         return true
       end
       if rest =~ /\sסעיף|פרק|דף|עמוד|משנה|גמרא|הלכה|הלכות|אות|סימן|פרק|שער|הקדמה|פרשת|ערך|מצוות|גיליון|פסוק\s/
@@ -47,6 +48,10 @@ module MyHelpers
       end
       if rest =~ /(\s+|-|,)#{$marked_hebrew_number}(\s+|,|$)/
         puts "Contains Hebrew number" if debug
+        return true
+      end
+      if rest =~ $gemara_page_ref
+        puts "Contains Gemara page reference" if debug
         return true
       end
       puts "No identifiers found after book name" if debug
