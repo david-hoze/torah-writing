@@ -60,38 +60,36 @@ def main
     end
 
     # remove the H1 from markdown body
-    body_lines = lines.reject { |ln| ln == h1_line }
+    body_lines = lines
+      .reject { |ln| ln == h1_line }
+      .map { _1.gsub(/\(([^\(]*)\)/) { |match| MyHelpers.is_citation($1) ? "`{\\small #{match}}`{=latex}" : match } }
+
     File.write(md_tmp, body_lines.join, encoding: "utf-8")
 
     # --- run pandoc ---------------------------------------------------------
     pdf_out = md_path.sub_ext(".pdf")
-    tex_out = md_path.sub_ext(".tex")
+    # tex_out = md_path.sub_ext(".tex")
     cmd = [
       "pandoc", md_tmp.to_s,
       "--template", tpl.to_s,
-      # "--pdf-engine", "xelatex",
-      # "-o", pdf_out.to_s
-      "-o", tex_out.to_s
+      "--pdf-engine", "xelatex",
+      "-o", pdf_out.to_s
+      # "-o", tex_out.to_s
     ]
 
     puts "Running Pandoc..."
     puts cmd.join(" ")
     system(*cmd) || abort("Pandoc failed to generate LaTeX file")
 
-    tex_content = File.read(tex_out, encoding: "utf-8")
-      .gsub /\(([^\(]*)\)/ do |match|
-        MyHelpers.is_citation($1) ? "{\\small #{match}}" : match
-        # puts $1
-        # puts match
-      end
+    # tex_content = File.read(tex_out, encoding: "utf-8")
 
-    File.write(tex_out, tex_content, encoding: "utf-8")
+    # File.write(tex_out, tex_content, encoding: "utf-8")
 
-    cmd = [
-      "xelatex", tex_out.to_s
-    ]
+    # cmd = [
+    #   "xelatex", tex_out.to_s
+    # ]
 
-    system(*cmd) || abort("Pandoc failed to generate PDF")
+    # system(*cmd) || abort("Pandoc failed to generate PDF")
 
     # --- open the PDF -------------------------------------------------------
     puts "Created #{pdf_out}"

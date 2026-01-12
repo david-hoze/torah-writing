@@ -41,7 +41,7 @@ module MyHelpers
         puts "Contains section indicator" if debug
         return true
       end
-      if rest =~ /\s+#{$marked_hebrew_number}(\s+|$)/
+      if rest =~ /(\s+|-|,)#{$marked_hebrew_number}(\s+|$)/
         puts "Contains Hebrew number" if debug
         return true
       end
