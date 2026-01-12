@@ -62,7 +62,10 @@ def main
     # remove the H1 from markdown body
     body_lines = lines
       .reject { |ln| ln == h1_line }
-      .map { _1.gsub(/\(([^\(]*)\)/) { |match| MyHelpers.is_citation($1) ? "`{\\small #{match}}`{=latex}" : match } }
+      .map do |line|
+        latex_command = line.start_with?(/\[\^\d+\]:/) ? "scriptsize" : "small"
+        line.gsub(/\(([^\(]*)\)/) { MyHelpers.is_citation($1) ? "`{\\#{latex_command} #{$&}}`{=latex}" : $& }
+      end
 
     File.write(md_tmp, body_lines.join, encoding: "utf-8")
 

@@ -37,11 +37,15 @@ module MyHelpers
     if book = $books.find { |b| text.start_with?(b) }
       puts "Found a match! The book is: #{book}" if debug
       rest = text[book.length..-1]
-      if rest =~ /\sסעיף|פרק|דף|עמוד|משנה|גמרא|הלכה|הלכות|אות|סימן|פרק|שער|הקדמה|פרשת|ערך|מצוות\s/
+      if rest == " שם"
+        puts "Contains reference to the above"
+        return true
+      end
+      if rest =~ /\sסעיף|פרק|דף|עמוד|משנה|גמרא|הלכה|הלכות|אות|סימן|פרק|שער|הקדמה|פרשת|ערך|מצוות|גיליון|פסוק\s/
         puts "Contains section indicator" if debug
         return true
       end
-      if rest =~ /(\s+|-|,)#{$marked_hebrew_number}(\s+|$)/
+      if rest =~ /(\s+|-|,)#{$marked_hebrew_number}(\s+|,|$)/
         puts "Contains Hebrew number" if debug
         return true
       end
