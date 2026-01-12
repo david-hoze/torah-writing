@@ -31,7 +31,6 @@ module MyHelpers
   $above_reference_len = 2
   def self.is_citation(text)
     debug = false
-    debug = text.include?("כ\"ד")
     puts "Starts with above reference #{text.start_with?("שָׁם")}" if debug
     puts "Checking if '#{text}' is a citation" if debug
     puts text if debug
