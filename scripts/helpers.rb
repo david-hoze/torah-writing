@@ -27,9 +27,12 @@ module MyHelpers
   $hebrew_number = /[א-ת]'?|[א-ת]"?[א-ת]|[א-ת][א-ת]"?[א-ת]/
   $marked_hebrew_number = /[א-ת]'|[א-ת]"[א-ת]|[א-ת][א-ת]"[א-ת]/
   $gemara_page_ref = /([א-ת]|[א-ת][א-ת]|[א-ת][א-ת][א-ת])(.|:)/
-  $above_reference = "שם "
+  $above_reference = /(שם|שָׁם) /
+  $above_reference_len = 2
   def self.is_citation(text)
     debug = false
+    debug = text.include?("כ\"ד")
+    puts "Starts with above reference #{text.start_with?("שָׁם")}" if debug
     puts "Checking if '#{text}' is a citation" if debug
     puts text if debug
     if text =~ /תורה #{$hebrew_number}/
@@ -38,7 +41,7 @@ module MyHelpers
     end
     if (book = $books.find { |b| text.start_with?(b) }) || text.start_with?($above_reference)
       puts "Found a match! The book is: #{book}" if debug
-      rest = book ? text[book.length..-1] : text[$above_reference.length..-1]
+      rest = book ? text[book.length..-1] : text[$above_reference_len..-1]
       if rest == " שם"
         puts "Contains reference to the above" if debug
         return true
