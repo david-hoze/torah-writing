@@ -14,10 +14,13 @@ fi
 
 echo "Backup is at: $BACKUP_PATH"
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 rclone copy "$1:$2" "$BACKUP_PATH" \
   --checksum \
   --progress \
   --log-file="$BACKUP_PATH/restore.log" \
   --log-level=INFO \
-  --exclude "*.log"
+  --exclude-from "$SCRIPT_DIR/exclude-common.txt"
+
 

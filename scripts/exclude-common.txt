@@ -1,0 +1,9 @@
+*.log
+~$*
+~WRL*.tmp
+*.tmp
+*.bak
+*.swp
+*.lock
+Thumbs.db
+.DS_Store

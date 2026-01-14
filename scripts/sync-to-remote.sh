@@ -49,6 +49,8 @@ else
   echo "🧪 DRY-RUN MODE: no changes will be made"
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 rclone sync "$BACKUP_PATH" "$REMOTE:$SUBPATH" \
   --checksum \
   --progress \
@@ -56,4 +58,4 @@ rclone sync "$BACKUP_PATH" "$REMOTE:$SUBPATH" \
   --backup-dir "$REMOTE:${SUBPATH}_deleted/$(date +%Y-%m-%d)" \
   --log-file="$BACKUP_PATH/sync.log" \
   --log-level=INFO \
-  --exclude "*.log"
+  --exclude-from "$SCRIPT_DIR/exclude-common.txt"
