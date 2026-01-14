@@ -5,7 +5,7 @@ require 'json'
 require 'open3'
 
 # ================= CONFIGURATION =================
-BITRATE_OPUS = "96k"      # Quality for standard PCM files
+BITRATE_OPUS = "64k"      # Quality for standard PCM files
 BITRATE_ADPCM_OPUS = "32k" # Quality for low-end ADPCM files
 THRESHOLD_PERCENT = 0.01   # 1% duration tolerance
 CONVERSION_TYPE = "flac"   # Default mode
