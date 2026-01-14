@@ -1,41 +1,36 @@
 #!/usr/bin/env ruby
 
-# convert_audio.rb
-require 'fileutils'
+require 'shellwords'
 
-puts "Starting conversion loop..."
+puts "Starting SAFE conversion loop..."
 
-# Find all WAV files recursively (case insensitive)
 Dir.glob("**/*.[wW][aA][vV]").each do |wav_file|
-  
-  # Create the new filename with .opus extension
   opus_file = wav_file.sub(/\.[^.]+\z/, ".opus")
   
   puts "---------------------------------------------------"
+  
+  # בדיקה אם קובץ היעד כבר קיים - אם כן, פשוט דלג על הקובץ הזה
+  if File.exist?(opus_file)
+    puts "⚠️  Skipping: Output already exists for #{wav_file}"
+    next 
+  end
+
   puts "Processing: #{wav_file}"
   
-  # COMMAND EXPLANATION:
-  # We pass the arguments as a list. This bypasses the shell completely.
-  # This fixes the issue with Hebrew, spaces, and ' quotes.
+  # הרצת ffmpeg
   success = system(
-    "ffmpeg", 
-    "-n",              # Do not overwrite if output exists
-    "-v", "error",     # Show only errors
-    "-i", wav_file,    # Input
-    "-c:a", "libopus", # Codec
-    "-b:a", "32k",     # Bitrate (Excellent for speech)
-    "-vbr", "on",      # Variable Bitrate
-    "-map_metadata", "0", # Copy tags
-    opus_file          # Output
+    "ffmpeg", "-n", "-v", "error", "-i", wav_file,
+    "-c:a", "libopus", "-b:a", "32k", "-vbr", "on",
+    "-map_metadata", "0", opus_file
   )
 
-  if success
+  # בדיקה כפולה ומכופלת: האם ffmpeg החזיר אמת והאם הקובץ באמת נוצר?
+  if success && File.exist?(opus_file) && File.size(opus_file) > 0
     puts "✅ Success! Deleting original WAV..."
     File.delete(wav_file)
   else
-    puts "❌ Error converting file. Skipping delete."
+    puts "❌ ERROR: Conversion failed for #{wav_file}. Keeping original."
   end
 end
 
 puts "Done!"
-
