@@ -2,80 +2,91 @@
 
 require 'shellwords'
 require 'json'
+require 'open3'
 
-# הגדרות איכות משופרות
-BITRATE = "96k" # העלינו מ-32k ל-64k. לתוצאה מושלמת אפשר גם 96k.
-THRESHOLD_PERCENT = 0.01 # סלחנות של 1% מהאורך הכולל
-CONVERSION_TYPE = "flac" # אפשר לשנות ל-"flac" אם רוצים להמיר ל-FLAC במקום OPUS
+# ================= CONFIGURATION =================
+BITRATE_OPUS = "96k"      # Quality for standard PCM files
+BITRATE_ADPCM_OPUS = "32k" # Quality for low-end ADPCM files
+THRESHOLD_PERCENT = 0.01   # 1% duration tolerance
+CONVERSION_TYPE = "flac"   # Default mode
+# =================================================
 
-def get_duration(file)
-  # Calls ffprobe to get duration in seconds
-  output = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "#{file}"`
-  output.to_f
+def get_metadata(file)
+  stdout, stderr, status = Open3.capture3(
+    "ffprobe", "-v", "error", "-select_streams", "a:0", 
+    "-show_entries", "stream=codec_name,duration", 
+    "-of", "json", file
+  )
+  return nil unless status.success?
+  JSON.parse(stdout)["streams"][0]
 rescue
-  0.0
+  nil
 end
 
-puts "Starting ULTRA-SAFE conversion loop (Duration Check enabled)..."
+puts "🚀 Starting Hybrid Conversion Loop..."
+puts "Mode: #{CONVERSION_TYPE.upcase} (with ADPCM-to-Opus override)"
+puts "---------------------------------------------------"
 
 Dir.glob("**/*.[wW][aA][vV]").each do |wav_file|
-  converted_file = wav_file.sub(/\.[^.]+\z/, ".#{CONVERSION_TYPE}")
-  
-  puts "---------------------------------------------------"
-  
-  # בדיקה אם קובץ היעד כבר קיים - אם כן, פשוט דלג על הקובץ הזה
-  if File.exist?(converted_file)
-    puts "⚠️  Skipping: Output already exists for #{wav_file}"
-    next 
-  end
-
-  puts "Processing: #{wav_file}"
-  
-  # Get original duration
-  original_duration = get_duration(wav_file)
-  
-  if original_duration == 0
-    puts "❌ ERROR: Could not read duration of original WAV. Skipping."
+  meta = get_metadata(wav_file)
+  if meta.nil?
+    puts "❌ ERROR: Could not probe #{wav_file}. Skipping."
     next
   end
 
+  codec = meta["codec_name"]
+  original_duration = meta["duration"].to_f
+  
+  # Determine actual target type for this specific file
+  current_target_type = CONVERSION_TYPE
+  is_adpcm = codec.include?("adpcm")
+
+  if CONVERSION_TYPE == "flac" && is_adpcm
+    puts "💡 ADPCM detected (#{codec}). Skipping"
+    next
+  end
+
+  converted_file = wav_file.sub(/\.[^.]+\z/, ".#{current_target_type}")
+  
+  if File.exist?(converted_file)
+    puts "⚠️  Skipping: Output exists for #{File.basename(wav_file)}"
+    next 
+  end
+
+  puts "Processing: #{File.basename(wav_file)} [Source: #{codec}]"
+
   success = false
-  if CONVERSION_TYPE == "flac"
-    # המרה ל-FLAC ברמת דחיסה מקסימלית (8)
-    # -compression_level 8: דחיסה חזקה יותר (ללא איבוד איכות)
-    success = system(
-      "ffmpeg", "-n", "-v", "error", "-i", wav_file,
-      "-c:a", "flac", "-compression_level", "8", 
-      "-map_metadata", "0", converted_file
-    )
+  if current_target_type == "flac"
+    # Lossless path
+    success = system("ffmpeg", "-n", "-v", "error", "-i", wav_file, "-c:a", "flac", "-compression_level", "8", "-map_metadata", "0", converted_file)
   else
-    success = system(
-      "ffmpeg", "-n", "-v", "error", "-i", wav_file,
-      "-c:a", "libopus", "-b:a", BITRATE, "-vbr", "on",
-      "-application", "voip", "-map_metadata", "0", converted_file
-    )
+    # Opus path (Standard or ADPCM override)
+    br = is_adpcm ? BITRATE_ADPCM_OPUS : BITRATE_OPUS
+    app = is_adpcm ? "voip" : "audio"
+    success = system("ffmpeg", "-n", "-v", "error", "-i", wav_file, "-c:a", "libopus", "-b:a", br, "-vbr", "on", "-application", app, "-map_metadata", "0", converted_file)
   end
 
   # Verification Logic
   if success && File.exist?(converted_file)
-    new_duration = get_duration(converted_file)
+    new_meta = get_metadata(converted_file)
+    new_duration = new_meta ? new_meta["duration"].to_f : 0
       
     diff = (original_duration - new_duration).abs
     allowed_diff = original_duration * THRESHOLD_PERCENT
 
-    # Check if duration difference is less than 0.1 seconds (to allow for slight padding/rounding)
-    duration_match = (original_duration - new_duration).abs < 0.2
-
+    # Valid if within 1% OR less than 2 seconds (for very short files)
     if diff < allowed_diff || diff < 2.0
-      puts "✅ Success! Duration matches (#{new_duration.round(2)}s). Deleting WAV..."
+      puts "✅ Success! Duration Match. Deleting original WAV..."
       File.delete(wav_file)
     else
       puts "❌ CRITICAL ERROR: Duration mismatch too large!"
-      puts "   WAV: #{original_duration}s vs OPUS: #{new_duration}s (Diff: #{diff.round(2)}s)"
-      puts "   Allowed Diff: #{allowed_diff.round(2)}s. Keeping original."    end
+      puts "   WAV: #{original_duration.round(2)}s vs NEW: #{new_duration.round(2)}s (Diff: #{diff.round(2)}s)"
+      puts "   Keeping original file for safety."
+    end
   else
     puts "❌ ERROR: ffmpeg execution failed for #{wav_file}."
   end
 end
 
+puts "---------------------------------------------------"
 puts "Done!"
