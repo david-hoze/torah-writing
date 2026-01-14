@@ -7,7 +7,7 @@ if [ $# -ne 2 ]; then
   exit 1
 fi
 
-if ! BACKUP_PATH="$(./find-backup-drive.sh "$2")"; then
+if ! BACKUP_PATH="$(find-backup-drive.sh "$2")"; then
   echo "Backup drive not found"
   exit 1
 fi
