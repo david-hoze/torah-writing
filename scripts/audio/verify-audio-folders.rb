@@ -72,7 +72,7 @@ Dir.glob("#{SOURCE_WAV_DIR}/**/*.[wW][aA][vV]").each do |wav_path|
     # בדיקה סלחנית: אם ההפרש קטן מ-1% או קטן מ-2 שניות
     if diff < allowed_diff || diff < 2.0
       stats[:matched] += 1
-      # puts "✅ OK [#{ext_found}]: #{base_relative}" # אופציונלי ללוג מפורט
+      puts "✅ OK [#{ext_found}]: #{base_relative} (WAV: #{wav_dur}s, #{ext_found}: #{target_dur}s), Diff: #{diff.round(2)}s)" # אופציונלי ללוג מפורט
     else
       stats[:duration_mismatch] += 1
       errors << "DURATION MISMATCH [#{ext_found}]: #{base_relative} (WAV: #{wav_dur}s, #{ext_found}: #{target_dur}s, Diff: #{diff.round(2)}s)"
