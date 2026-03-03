@@ -6,17 +6,24 @@
  * Usage:
  *   node scripts/hebrew-search.mjs <pattern> [file] [--context N] [--proximity N] [--line]
  *
- * Pattern syntax (from omnisearch):
+ * Pattern syntax (from omnisearch proximity-search.ts):
  *   * = any Hebrew letter(s)
- *   + = zero or more from prefix/suffix set (א,ב,ה,ו,י,כ,ך,ל,מ,ם,ש,ת)
+ *   + = zero or more from prefix/suffix set (א,ב,ה,ו,י,כ,ך,ל,מ,ם,נ,ן,ש,ת)
  *   Final letters are interchangeable (מ/ם, נ/ן, צ/ץ, פ/ף, כ/ך)
  *   Nikkud is stripped automatically
+ *
+ *   Wildcard BETWEEN root letters applies to ALL inter-letter gaps:
+ *     +עצב+   = root adjacent, only prefix/suffix chars at edges
+ *     +ע+צב+  = also allows plus-set chars between root letters
+ *     *ע*צ*ב* = comprehensive root search: any Hebrew letters between root letters
+ *               (best for finding all conjugations: נעצב, מתעצבים, התעצבנות, etc.)
  *
  * Multi-word proximity: separate patterns with spaces, use --proximity N
  *   node scripts/hebrew-search.mjs "לבנה מלכות +גרמ+" books/ברסלב/ליקוטי\ הלכות.md --proximity 15
  *
  * Examples:
  *   node scripts/hebrew-search.mjs "+תקן+"             # finds תיקון, התיקון, לתקן, etc.
+ *   node scripts/hebrew-search.mjs "*ע*צ*ב*"           # root search: finds all conjugations of ע-צ-ב
  *   node scripts/hebrew-search.mjs "גשר צר מאד"        # multi-word proximity search
  *   node scripts/hebrew-search.mjs "לבנה +גרמ+" --proximity 10
  */
@@ -29,7 +36,7 @@ import { join, resolve } from 'path'
 const HEBREW_LETTERS = '\u05D0-\u05EA'
 const NIKUD_REGEX = /[\u0591-\u05C7\u05F0-\u05F4]/g
 
-const PLUS_CHARS = 'אבהויךכלםמשת'
+const PLUS_CHARS = 'אבהויךכלםמנןשת'
 const PLUS_CLASS = `[${PLUS_CHARS}]`
 
 const FINAL_FORMS = {
