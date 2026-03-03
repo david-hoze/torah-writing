@@ -22,3 +22,6 @@ __pycache__/
 
 # Playground files
 scripts/playground/*
+
+# Book source files
+books/
