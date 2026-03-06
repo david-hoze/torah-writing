@@ -29,7 +29,7 @@ const { getSlug } = require("./book-slugs");
 // ── Config ──────────────────────────────────────────────────────────────────
 const BOOKS_DIR = path.resolve(__dirname, "../books");
 const OUTPUT_BASE = path.resolve(__dirname, "../output/claims");
-const AGENT_BIN = process.env.AGENT_PATH || "agent";
+const AGENT_BIN = process.env.AGENT_PATH || "gemini";
 
 const PROMPT_LH = path.resolve(__dirname, "prompts/lh-extract.txt");
 const PROMPT_GENERIC = path.resolve(__dirname, "prompts/generic-extract.txt");

@@ -3,21 +3,21 @@
  * Generic converter: HTML-tagged .txt book files → Markdown .md
  *
  * Walks books/ recursively, converts every .txt that has no .md sibling.
- * Uses the same conventions as convert-lm.js / convert-lh.js but without
- * book-specific heading renames (חלק→אות, פרק→הלכה).
  *
  * HTML tags handled:
  *   <h1>…</h1>  → # …       (h2–h5 likewise)
  *   <b>…</b>    → **…**
  *   <strong>…</strong> → **…**
- *   <small>…</small>  → stripped (text kept)
+ *   <small>…</small>  → *…* (italics — marks editorial/secondary text)
  *   <i …/>  or  <i …>…</i>  → stripped (overlay page refs in Zohar etc.)
- *   <span …>…</span> → stripped (color styling)
- *   <big>…</big> → stripped
- *   <sup …>…</sup> → stripped
+ *   <span …>…</span> → stripped (color styling, text kept)
+ *   <big>…</big> → stripped (text kept)
+ *   <sup …>…</sup> → <sup>…</sup> (kept as raw HTML for footnote markers)
  *   <br> / <br/> / <br /> → newline
- *   <UL>…</UL> → > blockquote
- *   <img …>  → kept as-is (base64 diagrams)
+ *   <UL>…</UL> → > blockquote (non-standard usage for indented passages)
+ *   <a href="…">text</a> → [text](href) (cross-reference links preserved)
+ *   <p style="…">text</p> → text
+ *   <img src="…"> → ![](src) for URL images, kept as-is for base64
  *
  * Usage:
  *   node scripts/convert-books.js              # convert all under books/
@@ -48,60 +48,82 @@ function getFreeSpaceMB() {
   }
 }
 
+// Strip all HTML tags from a string (for cleaning heading text)
+function stripAllTags(str) {
+  return str.replace(/<[^>]+>/g, '');
+}
+
 function convertLine(line) {
   line = line.replace(/\r$/, '');
 
-  // --- Phase 1: strip wrapper/styling tags so heading detection works on nested markup ---
-  line = line.replace(/<span\b[^>]*>/g, '');
-  line = line.replace(/<\/span>/g, '');
+  // --- Phase 1: strip purely visual tags (no semantic meaning) ---
   line = line.replace(/<big>/gi, '');
   line = line.replace(/<\/big>/gi, '');
-  line = line.replace(/<sup\b[^>]*>/g, '');
-  line = line.replace(/<\/sup>/g, '');
-  line = line.replace(/<small>/gi, '');
-  line = line.replace(/<\/small>/gi, '');
 
-  // Strip <i> tags (Zohar page overlays, footnotes etc.)
+  // Strip <i> tags with content (Zohar page overlays, footnotes etc.)
   line = line.replace(/<i\b[^>]*\/>/g, '');
   line = line.replace(/<i\b[^>]*>.*?<\/i>/g, '');
   line = line.replace(/<\/?i\b[^>]*>/g, '');
 
-  // --- Phase 2: heading detection (line now clean of wrapper tags) ---
-  // Closed heading at start of line: <hN>...</hN>
+  // --- Phase 2: heading detection ---
+  // For headings, strip all remaining tags from the text content
   const hMatch = line.match(/^<h(\d)>(.*)<\/h\1>\s*$/);
   if (hMatch) {
     const level = parseInt(hMatch[1]);
-    return '#'.repeat(level) + ' ' + hMatch[2].trim();
+    return '#'.repeat(level) + ' ' + stripAllTags(hMatch[2]).trim();
   }
-  // Unclosed heading at start of line: <hN>...
   const hOpen = line.match(/^<h(\d)>(.+)$/);
   if (hOpen) {
     const level = parseInt(hOpen[1]);
-    return '#'.repeat(level) + ' ' + hOpen[2].trim();
+    return '#'.repeat(level) + ' ' + stripAllTags(hOpen[2]).trim();
   }
-  // Inline heading mid-line: text <hN>...</hN> text → text \n### ... \ntext
+  // Inline heading mid-line
   line = line.replace(/<h(\d)>(.*?)<\/h\1>/g, (_, lvl, txt) =>
-    '\n' + '#'.repeat(parseInt(lvl)) + ' ' + txt.trim() + '\n');
+    '\n' + '#'.repeat(parseInt(lvl)) + ' ' + stripAllTags(txt).trim() + '\n');
 
-  // --- Phase 3: inline formatting ---
+  // --- Phase 3: strip wrapper tags that don't map to markdown ---
+  line = line.replace(/<span\b[^>]*>/g, '');
+  line = line.replace(/<\/span>/g, '');
+
+  // --- Phase 4: <sup> — strip style attrs but keep tag for footnote markers ---
+  line = line.replace(/<sup\b[^>]*>/g, '<sup>');
+
+  // --- Phase 5: <small> → italic ---
+  // Collapse nested <small> tags to a single level
+  while (line.includes('<small><small>')) line = line.replace(/<small><small>/gi, '<small>');
+  while (line.includes('</small></small>')) line = line.replace(/<\/small><\/small>/gi, '</small>');
+  // Merge adjacent italic regions: </small><small> or </small> <small>
+  line = line.replace(/<\/small>\s*<small>/gi, ' ');
+  // Convert to italic
+  line = line.replace(/<small>/gi, '*');
+  line = line.replace(/<\/small>/gi, '*');
+
+  // --- Phase 6: inline formatting ---
   line = line.replace(/<b>(.*?)<\/b>/g, '**$1**');
   line = line.replace(/<strong>(.*?)<\/strong>/g, '**$1**');
   // Strip orphan/malformed <b>, </b>, <b/> left from cross-line bold spans
   line = line.replace(/<\/?b\/?>/g, '');
 
-  // <a href="...">text</a> → text (cross-reference links)
+  // <a href="...">text</a> → [text](href)
+  line = line.replace(/<a\b[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/g, '[$2]($1)');
+  // Strip any remaining <a> tags without href
   line = line.replace(/<a\b[^>]*>(.*?)<\/a>/g, '$1');
 
   // <p style="...">text</p> → text
   line = line.replace(/<p\b[^>]*>(.*?)<\/p>/g, '$1');
 
-  // --- Phase 4: structural tags ---
-  // <br>, <br/>, <br /> → newline
-  line = line.replace(/<br\s*\/?>/gi, '\n');
+  // <img src="url"> → ![](url) for URL images; keep base64 as-is
+  line = line.replace(/<img\s+src="(https?:\/\/[^"]+)"[^>]*>/g, '![]($1)');
 
-  // <UL>…</UL> → blockquote
+  // --- Phase 7: structural tags ---
+  line = line.replace(/<br\s*\/?>/gi, '\n');
   line = line.replace(/<UL>/gi, '> ');
   line = line.replace(/<\/UL>/gi, '');
+
+  // --- Phase 8: post-processing ---
+  // Fix missing space after bold closing when followed by non-space, non-punctuation
+  // \w doesn't match Hebrew, so use [^\s*.,;:!?)\]}>] instead
+  line = line.replace(/(\S)\*\*([^\s*.,;:!?)\]}>])/g, '$1** $2');
 
   return line;
 }
@@ -109,7 +131,6 @@ function convertLine(line) {
 function convertFile(inputPath, outputPath, dryRun) {
   const content = fs.readFileSync(inputPath, 'utf-8');
   const lines = content.split('\n');
-  // convertLine may return multi-line strings (from <br> → \n), so flatten
   const converted = lines.flatMap(l => convertLine(l).split('\n'));
 
   const result = [];

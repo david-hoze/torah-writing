@@ -16,7 +16,7 @@ const { spawn } = require("child_process");
 
 // ── Run a CLI agent on a single prompt ───────────────────────────────────────
 // Supports both Cursor `agent` and Google `gemini` CLIs.
-function runAgent(prompt, id, { model = "", agentBin = "agent" } = {}) {
+function runAgent(prompt, id, { model = "", agentBin = "gemini" } = {}) {
   return new Promise((resolve, reject) => {
     const tmpFile = path.join(
       os.tmpdir(),
@@ -230,7 +230,10 @@ function createPool({ maxConcurrency = 5 } = {}) {
 
     windowStart = Date.now();
 
+    let fatalError = null;
+
     function trySpawn() {
+      if (fatalError) return;
       while (running < concurrency && nextIdx < tasks.length) {
         const i = nextIdx++;
         running++;
@@ -241,6 +244,11 @@ function createPool({ maxConcurrency = 5 } = {}) {
           } else {
             trySpawn();
           }
+        }).catch((err) => {
+          running--;
+          fatalError = err;
+          // Stop spawning new tasks; wait for running ones to finish
+          if (running === 0) resolveAll();
         });
       }
       if (tasks.length === 0) resolveAll();
@@ -279,6 +287,7 @@ function createPool({ maxConcurrency = 5 } = {}) {
 
     trySpawn();
     await allDone;
+    if (fatalError) throw fatalError;
     return results;
   }
 
