@@ -94,7 +94,12 @@ function convertLine(line) {
   while (line.includes('</small></small>')) line = line.replace(/<\/small><\/small>/gi, '</small>');
   // Merge adjacent italic regions: </small><small> or </small> <small>
   line = line.replace(/<\/small>\s*<small>/gi, ' ');
-  // Convert to italic
+  // Convert to italic — trim invisible/whitespace chars at boundaries so * is adjacent to content
+  line = line.replace(/<small>([\s\S]*?)<\/small>/gi, (_, content) => {
+    const trimmed = content.replace(/^[\s\u200E\u200F\u200B\uFEFF]+/, '').replace(/[\s\u200E\u200F\u200B\uFEFF]+$/, '');
+    return trimmed ? '*' + trimmed + '*' : '';
+  });
+  // Handle any remaining orphan tags (cross-line spans)
   line = line.replace(/<small>/gi, '*');
   line = line.replace(/<\/small>/gi, '*');
 
@@ -121,6 +126,10 @@ function convertLine(line) {
   line = line.replace(/<\/UL>/gi, '');
 
   // --- Phase 8: post-processing ---
+  // Strip bidi marks (LRM/RLM) adjacent to italic/bold markers — they break rendering
+  line = line.replace(/[\u200E\u200F\u200B]+\*/g, '*');
+  line = line.replace(/\*[\u200E\u200F\u200B]+/g, '*');
+
   // Fix missing space after bold closing when followed by non-space, non-punctuation
   // \w doesn't match Hebrew, so use [^\s*.,;:!?)\]}>] instead
   line = line.replace(/(\S)\*\*([^\s*.,;:!?)\]}>])/g, '$1** $2');
@@ -175,7 +184,11 @@ function walk(dir, reconvert) {
   return entries;
 }
 
-// --- main ---
+// Export for use by other scripts (e.g. conversion-report.js)
+module.exports = { convertLine };
+
+// --- main (only when run directly) ---
+if (require.main === module) {
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const reconvert = args.includes('--reconvert');
@@ -220,3 +233,4 @@ for (const f of files) {
 }
 
 console.log(`\nDone: ${converted} converted, ${skipped} skipped.`);
+}

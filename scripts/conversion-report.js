@@ -7,6 +7,9 @@
 const fs = require("fs");
 const path = require("path");
 
+// Import the actual converter so report examples match real output
+const { convertLine } = require("./convert-books.js");
+
 const BOOKS_DIR = path.resolve(__dirname, "../books");
 
 // Tag patterns to detect and their descriptions
@@ -18,16 +21,16 @@ const TAG_PATTERNS = [
   { name: "h5", regex: /<h5\b/i, desc: "Part heading → `##### ...`" },
   { name: "b", regex: /<b>/i, desc: "Bold → `**...**`" },
   { name: "strong", regex: /<strong>/i, desc: "Strong → `**...**`" },
-  { name: "small", regex: /<small>/i, desc: "Small → stripped" },
-  { name: "i", regex: /<i\b/i, desc: "Italic/overlay → stripped" },
-  { name: "span", regex: /<span\b/i, desc: "Span → stripped" },
-  { name: "big", regex: /<big>/i, desc: "Big → stripped" },
-  { name: "sup", regex: /<sup\b/i, desc: "Superscript → stripped" },
+  { name: "small", regex: /<small>/i, desc: "Small → `*...*` (italics)" },
+  { name: "i", regex: /<i\b/i, desc: "Overlay page refs → stripped (content removed; these are positional overlays in Zohar etc., not semantic italics)" },
+  { name: "span", regex: /<span\b/i, desc: "Span → stripped (text kept)" },
+  { name: "big", regex: /<big>/i, desc: "Big → stripped (text kept)" },
+  { name: "sup", regex: /<sup\b/i, desc: "Superscript → `<sup>` kept" },
   { name: "br", regex: /<br\b/i, desc: "Line break → newline" },
   { name: "UL", regex: /<UL>/i, desc: "Blockquote → `> ...`" },
-  { name: "a", regex: /<a\b/i, desc: "Link → text only" },
+  { name: "a", regex: /<a\b/i, desc: "Link → `[text](url)`" },
   { name: "p", regex: /<p\b/i, desc: "Paragraph → text only" },
-  { name: "img", regex: /<img\b/i, desc: "Image → kept as-is" },
+  { name: "img", regex: /<img\b/i, desc: "Image → `![](url)` for URL images; base64 data URIs kept as raw HTML (no external file extraction)" },
 ];
 
 function findTxtFiles(dir) {
@@ -45,37 +48,6 @@ function escapeForMarkdown(str) {
   return str.replace(/\|/g, "\\|");
 }
 
-// Simple line-level converter (mirrors convert-books.js logic)
-function convertLine(line) {
-  line = line.replace(/\r$/, "");
-  line = line.replace(/<span\b[^>]*>/g, "");
-  line = line.replace(/<\/span>/g, "");
-  line = line.replace(/<big>/gi, "");
-  line = line.replace(/<\/big>/gi, "");
-  line = line.replace(/<sup\b[^>]*>/g, "");
-  line = line.replace(/<\/sup>/g, "");
-  line = line.replace(/<small>/gi, "");
-  line = line.replace(/<\/small>/gi, "");
-  line = line.replace(/<i\b[^>]*\/>/g, "");
-  line = line.replace(/<i\b[^>]*>.*?<\/i>/g, "");
-  line = line.replace(/<\/?i\b[^>]*>/g, "");
-  const hMatch = line.match(/^<h(\d)>(.*)<\/h\1>\s*$/);
-  if (hMatch) return "#".repeat(parseInt(hMatch[1])) + " " + hMatch[2].trim();
-  const hOpen = line.match(/^<h(\d)>(.+)$/);
-  if (hOpen) return "#".repeat(parseInt(hOpen[1])) + " " + hOpen[2].trim();
-  line = line.replace(/<h(\d)>(.*?)<\/h\1>/g, (_, lvl, txt) =>
-    "\n" + "#".repeat(parseInt(lvl)) + " " + txt.trim() + "\n");
-  line = line.replace(/<b>(.*?)<\/b>/g, "**$1**");
-  line = line.replace(/<strong>(.*?)<\/strong>/g, "**$1**");
-  line = line.replace(/<\/?b\/?>/g, "");
-  line = line.replace(/<a\b[^>]*>(.*?)<\/a>/g, "$1");
-  line = line.replace(/<p\b[^>]*>(.*?)<\/p>/g, "$1");
-  line = line.replace(/<br\s*\/?>/gi, "\n");
-  line = line.replace(/<UL>/gi, "> ");
-  line = line.replace(/<\/UL>/gi, "");
-  return line;
-}
-
 const txtFiles = findTxtFiles(BOOKS_DIR);
 
 const out = [];
@@ -83,6 +55,26 @@ out.push("# Conversion Report: .txt → .md");
 out.push("");
 out.push(`Generated: ${new Date().toISOString().slice(0, 10)}`);
 out.push(`Total books: ${txtFiles.length}`);
+out.push("");
+
+// Conversion Rules Summary (#5 from review)
+out.push("## Conversion Rules Summary");
+out.push("");
+out.push("| HTML Tag | Markdown Output | Notes |");
+out.push("|----------|----------------|-------|");
+out.push("| `<h1>`–`<h5>` | `#`–`#####` | Heading level preserved; inner tags stripped |");
+out.push("| `<b>`, `<strong>` | `**...**` | Bold |");
+out.push("| `<small>` | `*...*` | Italics — marks editorial/secondary text |");
+out.push("| `<i>` | *(tag and content removed)* | Positional overlays (Zohar page refs), not semantic italics |");
+out.push("| `<span>` | *(stripped, text kept)* | Color styling removed |");
+out.push("| `<big>` | *(stripped, text kept)* | Visual sizing removed |");
+out.push("| `<sup>` | `<sup>` | Kept as raw HTML for footnote markers; style attrs stripped |");
+out.push("| `<br>` | newline | Line break |");
+out.push("| `<UL>` | `> ...` | Non-standard usage for indented/quoted passages |");
+out.push("| `<a href>` | `[text](url)` | Cross-reference links preserved |");
+out.push("| `<p>` | text only | Wrapper stripped |");
+out.push("| `<img src=\"http...\">` | `![](url)` | URL images converted to markdown |");
+out.push("| `<img src=\"data:...\">` | kept as raw HTML | Base64 data URIs — no external file extraction |");
 out.push("");
 
 // Global tag frequency summary
@@ -168,12 +160,32 @@ for (const book of bookData) {
   out.push(`Tags found: ${tagsUsed.map(t => "\`<" + t + ">\`").join(", ")}`);
   out.push("");
 
+  // Group tags that share the same example line to avoid duplicate examples (#4)
+  const lineGroups = {}; // lineNum → [tagName, ...]
   for (const tagName of tagsUsed) {
     const ex = book.tagExamples[tagName];
     if (!ex) continue;
+    const key = ex.lineNum;
+    if (!lineGroups[key]) lineGroups[key] = [];
+    lineGroups[key].push(tagName);
+  }
 
-    const tp = TAG_PATTERNS.find(t => t.name === tagName);
-    out.push(`**\`<${tagName}>\`** (${book.tagCounts[tagName]}x) — ${tp.desc}`);
+  const shown = new Set();
+  for (const tagName of tagsUsed) {
+    const ex = book.tagExamples[tagName];
+    if (!ex) continue;
+    if (shown.has(tagName)) continue;
+
+    const group = lineGroups[ex.lineNum];
+    // Mark all tags in this group as shown
+    for (const t of group) shown.add(t);
+
+    // Header: list all co-occurring tags
+    const tagHeaders = group.map(t => {
+      const tp = TAG_PATTERNS.find(p => p.name === t);
+      return `**\`<${t}>\`** (${book.tagCounts[t]}x) — ${tp.desc}`;
+    });
+    out.push(tagHeaders.join("  \n"));
     out.push("");
 
     // Truncate very long lines for readability
