@@ -7,18 +7,22 @@
  * book-specific heading renames (חלק→אות, פרק→הלכה).
  *
  * HTML tags handled:
- *   <h1>…</h1>  → # …
- *   <h2>…</h2>  → ## …
- *   <h3>…</h3>  → ### …
- *   <h4>…</h4>  → #### …
- *   <h5>…</h5>  → ##### …
+ *   <h1>…</h1>  → # …       (h2–h5 likewise)
  *   <b>…</b>    → **…**
+ *   <strong>…</strong> → **…**
  *   <small>…</small>  → stripped (text kept)
  *   <i …/>  or  <i …>…</i>  → stripped (overlay page refs in Zohar etc.)
+ *   <span …>…</span> → stripped (color styling)
+ *   <big>…</big> → stripped
+ *   <sup …>…</sup> → stripped
+ *   <br> / <br/> / <br /> → newline
+ *   <UL>…</UL> → > blockquote
+ *   <img …>  → kept as-is (base64 diagrams)
  *
  * Usage:
  *   node scripts/convert-books.js              # convert all under books/
  *   node scripts/convert-books.js --dry-run    # preview without writing
+ *   node scripts/convert-books.js --reconvert  # re-convert even if .md exists
  *   node scripts/convert-books.js path/to/file.txt   # convert one file
  */
 
@@ -47,22 +51,57 @@ function getFreeSpaceMB() {
 function convertLine(line) {
   line = line.replace(/\r$/, '');
 
-  // Strip <i> tags (Zohar page overlays etc.)
+  // --- Phase 1: strip wrapper/styling tags so heading detection works on nested markup ---
+  line = line.replace(/<span\b[^>]*>/g, '');
+  line = line.replace(/<\/span>/g, '');
+  line = line.replace(/<big>/gi, '');
+  line = line.replace(/<\/big>/gi, '');
+  line = line.replace(/<sup\b[^>]*>/g, '');
+  line = line.replace(/<\/sup>/g, '');
+  line = line.replace(/<small>/gi, '');
+  line = line.replace(/<\/small>/gi, '');
+
+  // Strip <i> tags (Zohar page overlays, footnotes etc.)
   line = line.replace(/<i\b[^>]*\/>/g, '');
   line = line.replace(/<i\b[^>]*>.*?<\/i>/g, '');
+  line = line.replace(/<\/?i\b[^>]*>/g, '');
 
-  // h1–h5 → markdown headings
-  const hMatch = line.match(/^<h(\d)>(.*)<\/h\1>$/);
+  // --- Phase 2: heading detection (line now clean of wrapper tags) ---
+  // Closed heading at start of line: <hN>...</hN>
+  const hMatch = line.match(/^<h(\d)>(.*)<\/h\1>\s*$/);
   if (hMatch) {
     const level = parseInt(hMatch[1]);
-    return '#'.repeat(level) + ' ' + hMatch[2];
+    return '#'.repeat(level) + ' ' + hMatch[2].trim();
   }
+  // Unclosed heading at start of line: <hN>...
+  const hOpen = line.match(/^<h(\d)>(.+)$/);
+  if (hOpen) {
+    const level = parseInt(hOpen[1]);
+    return '#'.repeat(level) + ' ' + hOpen[2].trim();
+  }
+  // Inline heading mid-line: text <hN>...</hN> text → text \n### ... \ntext
+  line = line.replace(/<h(\d)>(.*?)<\/h\1>/g, (_, lvl, txt) =>
+    '\n' + '#'.repeat(parseInt(lvl)) + ' ' + txt.trim() + '\n');
 
-  // <b>…</b> → **…**
+  // --- Phase 3: inline formatting ---
   line = line.replace(/<b>(.*?)<\/b>/g, '**$1**');
+  line = line.replace(/<strong>(.*?)<\/strong>/g, '**$1**');
+  // Strip orphan/malformed <b>, </b>, <b/> left from cross-line bold spans
+  line = line.replace(/<\/?b\/?>/g, '');
 
-  // <small>…</small> → plain text
-  line = line.replace(/<small>(.*?)<\/small>/g, '$1');
+  // <a href="...">text</a> → text (cross-reference links)
+  line = line.replace(/<a\b[^>]*>(.*?)<\/a>/g, '$1');
+
+  // <p style="...">text</p> → text
+  line = line.replace(/<p\b[^>]*>(.*?)<\/p>/g, '$1');
+
+  // --- Phase 4: structural tags ---
+  // <br>, <br/>, <br /> → newline
+  line = line.replace(/<br\s*\/?>/gi, '\n');
+
+  // <UL>…</UL> → blockquote
+  line = line.replace(/<UL>/gi, '> ');
+  line = line.replace(/<\/UL>/gi, '');
 
   return line;
 }
@@ -70,7 +109,8 @@ function convertLine(line) {
 function convertFile(inputPath, outputPath, dryRun) {
   const content = fs.readFileSync(inputPath, 'utf-8');
   const lines = content.split('\n');
-  const converted = lines.map(convertLine);
+  // convertLine may return multi-line strings (from <br> → \n), so flatten
+  const converted = lines.flatMap(l => convertLine(l).split('\n'));
 
   const result = [];
   for (let i = 0; i < converted.length; i++) {
@@ -97,16 +137,16 @@ function convertFile(inputPath, outputPath, dryRun) {
   return true;
 }
 
-function walk(dir) {
+function walk(dir, reconvert) {
   const entries = [];
   for (const item of fs.readdirSync(dir)) {
     const full = path.join(dir, item);
     const stat = fs.statSync(full);
     if (stat.isDirectory()) {
-      entries.push(...walk(full));
+      entries.push(...walk(full, reconvert));
     } else if (item.endsWith('.txt')) {
       const mdPath = full.replace(/\.txt$/, '.md');
-      if (!fs.existsSync(mdPath)) {
+      if (reconvert || !fs.existsSync(mdPath)) {
         entries.push({ txt: full, md: mdPath, size: stat.size });
       }
     }
@@ -117,6 +157,7 @@ function walk(dir) {
 // --- main ---
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
+const reconvert = args.includes('--reconvert');
 const explicitFile = args.find(a => a.endsWith('.txt'));
 
 const booksDir = path.join(__dirname, '..', 'books');
@@ -126,7 +167,7 @@ if (explicitFile) {
   const abs = path.resolve(explicitFile);
   files = [{ txt: abs, md: abs.replace(/\.txt$/, '.md'), size: fs.statSync(abs).size }];
 } else {
-  files = walk(booksDir);
+  files = walk(booksDir, reconvert);
 }
 
 if (files.length === 0) {
