@@ -28,3 +28,6 @@ books/
 
 # Extraction output
 output/
+
+# Local Claude config
+.claude/
