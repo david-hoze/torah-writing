@@ -24,7 +24,6 @@ __pycache__/
 scripts/playground/*
 
 # Book source files
-books/
 
 # Extraction output
 output/

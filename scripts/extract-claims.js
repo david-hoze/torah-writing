@@ -34,7 +34,7 @@ const AGENT_BIN = process.env.AGENT_PATH || "gemini";
 const PROMPT_LH = path.resolve(__dirname, "prompts/lh-extract.txt");
 const PROMPT_GENERIC = path.resolve(__dirname, "prompts/generic-extract.txt");
 
-const LH_FILENAME = "ליקוטי הלכות.md";
+const LH_FILENAME = "likutei-halachot.md";
 const LH_OUTPUT_DIR = path.resolve(__dirname, "../output/likutei-halachot");
 
 // ── CLI flags ───────────────────────────────────────────────────────────────
