@@ -1,59 +1,70 @@
 #!/usr/bin/env node
-// Merge all extracted claims into a single JSON file.
-// Walks both output/likutei-halachot/ and output/claims/ directories.
+// Merge extracted claim files per book into one JSON per book.
+// Each book directory in output/claims/ gets a merged <book-slug>.json in output/merged/
 //
-// Usage: node scripts/merge-claims.js [--output path]
+// Usage: node scripts/merge-claims.js [--book SLUG]
 
 const fs = require("fs");
 const path = require("path");
 
-const INPUT_DIRS = [
-  path.resolve(__dirname, "../output/likutei-halachot"),
-  path.resolve(__dirname, "../output/claims"),
-];
+const CLAIMS_DIR = path.resolve(__dirname, "../output/claims");
+const OUTPUT_DIR = path.resolve(__dirname, "../output/merged");
 
 const args = process.argv.slice(2);
-const outIdx = args.indexOf("--output");
-const OUTPUT = outIdx !== -1
-  ? path.resolve(args[outIdx + 1])
-  : path.resolve(__dirname, "../output/all-claims.json");
+const bookIdx = args.indexOf("--book");
+const BOOK_FILTER = bookIdx !== -1 ? args[bookIdx + 1] : "";
 
-function walk(dir) {
-  if (!fs.existsSync(dir)) return [];
-  const files = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...walk(full));
-    else if (entry.name.endsWith(".json")) files.push(full);
-  }
-  return files;
-}
+function mergeBook(bookDir, slug) {
+  const files = fs.readdirSync(bookDir)
+    .filter(f => f.endsWith(".json"))
+    .sort();
 
-const allClaims = [];
-let totalFiles = 0;
-let errors = 0;
+  const claims = [];
+  let errors = 0;
 
-for (const dir of INPUT_DIRS) {
-  const files = walk(dir).sort();
-  totalFiles += files.length;
   for (const f of files) {
-    const data = JSON.parse(fs.readFileSync(f, "utf-8"));
+    const data = JSON.parse(fs.readFileSync(path.join(bookDir, f), "utf-8"));
     if (data.error && data.claims.length === 0) {
       errors++;
       continue;
     }
     for (const claim of data.claims) {
-      allClaims.push({
+      claims.push({
         source: data.source,
-        book: data.book || "ליקוטי הלכות",
         ...claim,
       });
     }
   }
+
+  const outPath = path.join(OUTPUT_DIR, slug + ".json");
+  fs.writeFileSync(outPath, JSON.stringify(claims, null, 2), "utf-8");
+  return { slug, files: files.length, claims: claims.length, errors };
 }
 
-fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
-fs.writeFileSync(OUTPUT, JSON.stringify(allClaims, null, 2), "utf-8");
+// Main
+fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-console.log(`Merged ${totalFiles} files → ${allClaims.length} claims (${errors} errors)`);
-console.log(`Output: ${OUTPUT}`);
+const books = fs.readdirSync(CLAIMS_DIR, { withFileTypes: true })
+  .filter(d => d.isDirectory())
+  .map(d => d.name)
+  .filter(d => !BOOK_FILTER || d.includes(BOOK_FILTER))
+  .sort();
+
+let totalFiles = 0;
+let totalClaims = 0;
+let totalErrors = 0;
+
+for (const slug of books) {
+  const result = mergeBook(path.join(CLAIMS_DIR, slug), slug);
+  totalFiles += result.files;
+  totalClaims += result.claims;
+  totalErrors += result.errors;
+  console.log(`  ${result.slug}: ${result.files} files → ${result.claims} claims${result.errors ? ` (${result.errors} errors)` : ""}`);
+}
+
+console.log(`\n=== Summary ===`);
+console.log(`Books: ${books.length}`);
+console.log(`Files: ${totalFiles}`);
+console.log(`Claims: ${totalClaims}`);
+console.log(`Errors skipped: ${totalErrors}`);
+console.log(`Output: ${OUTPUT_DIR}/`);

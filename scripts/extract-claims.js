@@ -35,7 +35,7 @@ const PROMPT_LH = path.resolve(__dirname, "prompts/lh-extract.txt");
 const PROMPT_GENERIC = path.resolve(__dirname, "prompts/generic-extract.txt");
 
 const LH_FILENAME = "likutei-halachot.md";
-const LH_OUTPUT_DIR = path.resolve(__dirname, "../output/likutei-halachot");
+const LH_OUTPUT_DIR = path.resolve(__dirname, "../output/claims/likutei-halachot");
 
 // ── CLI flags ───────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -327,13 +327,25 @@ async function processBook(bookPath, bookNum, totalBooks) {
 
   fs.mkdirSync(outDir, { recursive: true });
 
-  // Resume check
+  // Resume check — skip successful files, delete and retry error files
   const done = new Set();
   if (RESUME) {
     for (const f of fs.readdirSync(outDir)) {
       if (f.endsWith(".json")) {
         const num = parseInt(f.split("_")[0], 10);
-        if (!isNaN(num)) done.add(num);
+        if (isNaN(num)) continue;
+        const filePath = path.join(outDir, f);
+        try {
+          const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+          if (data.error) {
+            fs.unlinkSync(filePath);
+            continue; // will be retried
+          }
+        } catch (e) {
+          fs.unlinkSync(filePath);
+          continue;
+        }
+        done.add(num);
       }
     }
   }
