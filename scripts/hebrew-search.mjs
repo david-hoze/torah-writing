@@ -274,4 +274,11 @@ function main() {
   console.log(`Total: ${totalMatches} match${totalMatches !== 1 ? 'es' : ''} in ${files.length} file${files.length !== 1 ? 's' : ''}`)
 }
 
-main()
+// ── Exports for library use ──────────────────────────────────────────────────
+
+export { stripNikud, patternToRegex, tokenizeHebrew, findProximityMatches, walkFiles, FINAL_FORMS }
+
+// ── CLI entry point ─────────────────────────────────────────────────────────
+
+const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'))
+if (isMain) main()

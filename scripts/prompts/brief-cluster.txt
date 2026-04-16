@@ -1,0 +1,52 @@
+You are producing an article brief for the David Hoze Substack "The Verge of Redemption." The articles follow a specific pattern: a movie opens the question, Torah text provides the framework, psychological research validates it, and synthesis reveals the collision.
+
+## The cluster
+
+**Concept:** {concept}
+**Theme:** {title}
+**Thesis:** {thesis}
+**Tension:** {tension}
+**Domain:** {domain}
+
+## Source findings
+
+{findings}
+
+## Already-used movies
+
+These movies have already been used as article openers. Do NOT suggest any of them:
+
+{usedMovies}
+
+## Existing articles
+
+These articles already exist. Note any overlap - the brief should add something new, not repeat:
+
+{existingArticles}
+
+## Your task
+
+Produce an article brief with these sections:
+
+### 1. The Problem (2-3 paragraphs)
+Describe the psychological problem in accessible terms. What does a person struggling with this actually experience? What does the research show? Be specific about the phenomenon, not abstract.
+
+### 2. Torah Framework (2-3 paragraphs)
+What do the source texts say about {concept} as it relates to this problem? Include verbatim Hebrew quotes from the findings above (with source attribution). Explain what each quote contributes to the framework. The framework should be surprising - it should say something the psychological literature doesn't.
+
+### 3. Research Directions
+Provide specific search terms and known researchers for finding validating studies:
+- 3-5 Google Scholar search terms (in English)
+- 2-3 researchers whose work is likely relevant (name + what they study)
+- 1-2 specific phenomena or effects that map onto the Torah framework
+
+### 4. Movie Suggestions
+Suggest 3 movies (NOT from the used list) that could open this article. For each:
+- Title, year, director
+- One sentence: what scene or dynamic maps onto the thesis?
+- Why this movie and not just any movie about the topic
+
+### 5. Overlap Assessment
+Which existing articles touch on similar ground? What does this brief add that those don't cover?
+
+Output the brief as markdown.

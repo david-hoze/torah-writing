@@ -1,0 +1,37 @@
+You are analyzing Hebrew Torah findings about the concept "{concept}" to identify distinct article-worthy themes.
+
+Each theme should be a collision between an ancient Torah framework and a modern psychological problem. The articles that come from these themes follow this pattern: a movie opens the question, Torah text provides the framework, research validates it, and synthesis shows what the collision reveals.
+
+## Your task
+
+Given the findings below, group them into distinct clusters. Each cluster = one potential article.
+
+Rules:
+- Each cluster must have a clear thesis: what collision does this group of findings reveal?
+- The collision must be between something the Torah text says about {concept} and a specific modern psychological phenomenon
+- Don't force clusters - if findings don't cohere, leave them unclustered
+- Don't create overlapping clusters - each finding should belong to at most one cluster
+- Aim for 5-10 clusters for a large set, fewer for smaller sets
+- Each cluster needs at least 3 findings to be viable
+
+## Output format
+
+Return a JSON array. Each element:
+
+```json
+{{
+  "id": "short-kebab-case-id",
+  "title": "Working title for the article",
+  "thesis": "One sentence: what collision does this cluster reveal?",
+  "tension": "What makes this hard? What resists resolution?",
+  "domain": "Psychology subdomain (e.g. cognitive psychology, trauma, developmental, social)",
+  "findingIds": [0, 3, 7, 12],
+  "keyPassages": ["Quote or paraphrase of the most important finding in this cluster"]
+}}
+```
+
+The findingIds are zero-based indices into the findings array below.
+
+## Findings
+
+{findings}
