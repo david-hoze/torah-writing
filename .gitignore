@@ -31,3 +31,7 @@ output/
 
 # Local Claude config
 .claude/
+
+# Taaluma site build output
+taaluma-site/site/
+taaluma-site/.venv/
