@@ -33,13 +33,13 @@ output/
 .claude/
 
 # Taaluma site build output
-taaluma-site/site/
-taaluma-site/.venv/
+sites/taaluma-site/site/
+sites/taaluma-site/.venv/
 
 # Hagut site build output
-hagut-site/site/
-hagut-site/.venv/
+sites/hagut-site/site/
+sites/hagut-site/.venv/
 
 # Short-stories site build output
-short-stories-site/site/
-short-stories-site/.venv/
+sites/short-stories-site/site/
+sites/short-stories-site/.venv/

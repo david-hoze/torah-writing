@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "uman-rosh-hashana/taaluma/**"
-      - "taaluma-site/**"
+      - "sites/taaluma-site/**"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
@@ -28,7 +28,7 @@ jobs:
         run: pip install markdown
 
       - name: Build site
-        run: python taaluma-site/build.py uman-rosh-hashana/taaluma taaluma-site/site
+        run: python sites/taaluma-site/build.py uman-rosh-hashana/taaluma sites/taaluma-site/site
 
       - name: Create Pages project if it does not exist
         env:
@@ -40,4 +40,4 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --yes wrangler@4 pages deploy taaluma-site/site --project-name=taaluma --branch=main
+        run: npx --yes wrangler@4 pages deploy sites/taaluma-site/site --project-name=taaluma --branch=main
