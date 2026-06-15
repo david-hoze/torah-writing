@@ -24,6 +24,19 @@ SITE_TITLE    = "הגות"
 SITE_SUBTITLE = "מאמרים ומחשבות"
 # -------------------------------------
 
+# ---- sister sites (cross-links shown in the footer) ----
+SITE_KEY = "hagut"
+SITES = [
+    ("taaluma",       "תעלומה",        "https://taaluma.pages.dev"),
+    ("hagut",         "הגות",          "https://hagut.pages.dev"),
+    ("short-stories", "סיפורים קצרים", "https://short-stories.pages.dev"),
+]
+def site_links():
+    items = "".join(f'<a href="{url}">{name}</a>'
+                    for key, name, url in SITES if key != SITE_KEY)
+    return f'<nav class="sites" aria-label="אתרים נוספים">{items}</nav>'
+# --------------------------------------------------------
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC  = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(HERE, "..", "..", "hagut")
 OUT  = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else os.path.join(HERE, "site")
@@ -88,7 +101,10 @@ def page(title, body):
 </head>
 <body>
 {body}
-<footer class="foot"><p>{SITE_TITLE}</p></footer>
+<footer class="foot">
+  <p class="foot-brand">{SITE_TITLE}</p>
+  {site_links()}
+</footer>
 </body>
 </html>"""
 
