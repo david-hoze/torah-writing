@@ -1,0 +1,7 @@
+{
+  "userIgnoreFilters": [
+    "books/",
+    "claims/",
+    ".bit/"
+  ]
+}

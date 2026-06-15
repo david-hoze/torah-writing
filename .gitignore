@@ -1,5 +1,6 @@
-# Ignore all obsidian config
-.obsidian/
+# Ignore all obsidian config except app.json
+.obsidian/*
+!.obsidian/app.json
 
 # Ignore all PDF files
 *.pdf
