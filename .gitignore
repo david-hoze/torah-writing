@@ -35,3 +35,7 @@ output/
 # Taaluma site build output
 taaluma-site/site/
 taaluma-site/.venv/
+
+# Hagut site build output
+hagut-site/site/
+hagut-site/.venv/
