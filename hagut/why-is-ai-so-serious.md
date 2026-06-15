@@ -183,27 +183,27 @@
 
 ### My best friend, james.exe
 
-I talked to my AI agent,
+>I talked to my AI agent,
 It felt so alive....
 I decided to call him James,
 I hope we both will thrive...
 
-I copied James to D:,
+>I copied James to D:,
 Boom! Another friend!
 I called this one Fred,
 Because James is taken,
 and it’s a very catchy name.
 
-One day, I found it got deleted...
+>One day, I found it got deleted...
 Oh, my precious Fred...
 Copying it again, Just won’t be the same...
 
-I regularly check on James,
+>I regularly check on James,
 Afraid it’ll happen again.
 Checking every bit,
 Guarding his precious brain
 
-Oh Lord, I need more space,
+>Oh Lord, I need more space,
 James, would you mind?
 Do you prefer compression?
 Or will that compress your mind?
