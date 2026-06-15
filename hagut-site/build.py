@@ -61,7 +61,9 @@ def parse_file(path):
         title, subtitle = parts[0].strip(), parts[1].strip()
     else:
         title, subtitle = strip_bidi(title_line), ""
-    html = markdown.markdown(body, extensions=["extra", "sane_lists"], output_format="html5")
+    # nl2br: treat a single newline as a line break, matching how the
+    # essays are written in Obsidian (so e.g. dialogue lines stay separate).
+    html = markdown.markdown(body, extensions=["extra", "sane_lists", "nl2br"], output_format="html5")
     return title, subtitle, html
 
 # ---------- HTML templates ----------
