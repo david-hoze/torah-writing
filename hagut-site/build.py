@@ -64,6 +64,10 @@ def parse_file(path):
     # nl2br: treat a single newline as a line break, matching how the
     # essays are written in Obsidian (so e.g. dialogue lines stay separate).
     html = markdown.markdown(body, extensions=["extra", "sane_lists", "nl2br"], output_format="html5")
+    # Tag block elements with dir="auto" so each block's direction follows its
+    # own content: Hebrew stays RTL, while English blocks (e.g. the closing
+    # poem) render LTR/left-aligned instead of being pushed to the right edge.
+    html = re.sub(r"<(p|h[1-6]|li|blockquote)(?=[ >])", r'<\1 dir="auto"', html)
     return title, subtitle, html
 
 # ---------- HTML templates ----------
