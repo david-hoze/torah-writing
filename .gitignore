@@ -39,3 +39,7 @@ taaluma-site/.venv/
 # Hagut site build output
 hagut-site/site/
 hagut-site/.venv/
+
+# Short-stories site build output
+short-stories-site/site/
+short-stories-site/.venv/
