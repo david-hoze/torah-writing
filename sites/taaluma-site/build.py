@@ -178,6 +178,11 @@ def main():
     if os.path.exists(css_src):
         shutil.copy(css_src, os.path.join(OUT, "style.css"))
 
+    # Copy static assets (images, etc.) referenced as /assets/... in the Markdown.
+    assets_src = os.path.join(HERE, "assets")
+    if os.path.isdir(assets_src):
+        shutil.copytree(assets_src, os.path.join(OUT, "assets"))
+
     print(f"Built {len(chs)} chapters + index -> {OUT}")
     print("Chapters:", ", ".join(str(c[0]) for c in chs))
 

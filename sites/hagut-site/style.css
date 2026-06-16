@@ -91,6 +91,17 @@ a{color:inherit;text-decoration:none}
 .prose a:hover{text-decoration-color:var(--indigo)}
 .prose hr{border:0;height:1px;background:var(--rule);margin:2.5rem 0}
 
+/* figures / film stills */
+.prose figure,.film-still{margin:2rem 0;text-align:center}
+.prose img,.film-still img{
+  max-width:100%;height:auto;border-radius:3px;
+  box-shadow:0 1px 14px rgba(33,30,26,.18);
+}
+.prose figcaption,.film-still figcaption{
+  margin-top:.7rem;font-family:var(--sans);font-size:.82rem;
+  color:var(--muted);letter-spacing:.02em;
+}
+
 /* source citations */
 .prose blockquote{
   margin:1.8rem 0;padding:.2rem 1.3rem;
