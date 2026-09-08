@@ -37,6 +37,24 @@ def site_links():
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC  = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(HERE, "content")
 OUT  = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else os.path.join(HERE, "site")
+AUDIO_SRC = os.path.join(HERE, "audio")  # per-chapter narration MP3s (see gen-audio.py)
+
+_ICONS = ('<svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>'
+          '<svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>')
+
+def audio_player(num):
+    """Player markup for a chapter, or '' if no MP3 was generated for it."""
+    if not os.path.exists(os.path.join(AUDIO_SRC, f"chapter-{num:02d}.mp3")):
+        return ""
+    return (f'<div class="audio">'
+            f'<button class="audio-btn" type="button" aria-label="השמעת הפרק">{_ICONS}</button>'
+            f'<div class="audio-body">'
+            f'<span class="audio-label">האזנה לפרק</span>'
+            f'<div class="audio-bar"><div class="audio-progress"></div></div>'
+            f'<span class="audio-time">0:00</span>'
+            f'</div>'
+            f'<audio class="audio-el" preload="none" src="/audio/chapter-{num:02d}.mp3"></audio>'
+            f'</div>')
 
 BIDI = "".join(chr(c) for c in [0x200e, 0x200f, 0x202a, 0x202b, 0x202c, 0x202d, 0x202e, 0x2066, 0x2067, 0x2068, 0x2069])
 def strip_bidi(s): return s.translate({ord(c): None for c in BIDI}).strip()
@@ -88,6 +106,7 @@ def page(title, body, css="style.css"):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{fonts}">
 <link rel="stylesheet" href="/{css}">
+<script defer src="/audio.js"></script>
 </head>
 <body>
 {body}
@@ -139,6 +158,7 @@ def render_chapter(num, label, title, html, prev_, next_):
 <article class="chapter">
   {eyebrow}
   <h1 class="chap-title">{title}</h1>
+  {audio_player(num)}
   <div class="prose">
 {html}
   </div>
@@ -177,6 +197,18 @@ def main():
     css_src = os.path.join(HERE, "style.css")
     if os.path.exists(css_src):
         shutil.copy(css_src, os.path.join(OUT, "style.css"))
+
+    js_src = os.path.join(HERE, "audio.js")
+    if os.path.exists(js_src):
+        shutil.copy(js_src, os.path.join(OUT, "audio.js"))
+
+    # Copy the generated narration MP3s (see gen-audio.py) into the site.
+    if os.path.isdir(AUDIO_SRC):
+        dst = os.path.join(OUT, "audio")
+        os.makedirs(dst, exist_ok=True)
+        for name in os.listdir(AUDIO_SRC):
+            if name.endswith(".mp3"):
+                shutil.copy(os.path.join(AUDIO_SRC, name), os.path.join(dst, name))
 
     # Copy static assets (images, etc.) referenced as /assets/... in the Markdown.
     assets_src = os.path.join(HERE, "assets")

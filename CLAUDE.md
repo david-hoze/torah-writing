@@ -37,6 +37,30 @@ Requires the `markdown` Python module (`python3-markdown` via apt, or
   `site_links()` nav in the shared footer — update the `SITES` list in all three
   if a site is added or its URL changes.
 
+#### Taaluma narration (audio)
+The taaluma site has an optional per-chapter narration player. Audio is
+pre-generated locally (never in CI) into `sites/taaluma-site/audio/chapter-NN.mp3`;
+`build.py` copies the MP3s + `audio.js` into the site and injects a play button on
+any chapter that has an MP3. Two generator scripts write the same output - pick one:
+
+- `make-chapter.py` (Gemini TTS, primary) - richer voices + a Hebrew style
+  preamble (soft, contemplative narrator; quotes read slower). Needs
+  `GEMINI_API_KEY`. Calls the Gemini REST API directly via urllib (the
+  google-genai package has no Python 3.14 wheel). Model
+  `gemini-2.5-pro-preview-tts`, auto-falling back to `gemini-3.1-flash-tts-preview`
+  on quota/5xx (the pro TTS model needs a paid tier; flash works on free). Splits
+  on `##` headings, expands abbreviations (ז"ל etc., extend the `ABBREV` table),
+  caches each chunk's WAV under `audio/.cache/`, and encodes 64k mono MP3 with
+  ffmpeg. Run: `python3 sites/taaluma-site/make-chapter.py <chapter.md> --chapter N
+  [--voice Charon]`. Needs ffmpeg (`pacman -S mingw-w64-ucrt-x86_64-ffmpeg`).
+- `gen-audio.py` (edge-tts, free fallback) - Microsoft Edge neural voices, no key
+  (`he-IL-AvriNeural` / `he-IL-HilaNeural`). `pip install --break-system-packages
+  edge-tts`; `python3 sites/taaluma-site/gen-audio.py` with `--sample`,
+  `--list-voices`, `--voice`, `TAALUMA_VOICE`, `TAALUMA_RATE`.
+
+`sample*.mp3`, `.cache/`, and edge-tts's `manifest.json` cache are gitignored;
+commit `chapter-NN.mp3`.
+
 ### Content folders
 Hebrew writing, organized by project/collection. Notable ones:
 - `uman-rosh-hashana/` — the "תעלומה" book (`taaluma/` chapters) plus drafts,

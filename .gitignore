@@ -35,6 +35,9 @@ output/
 # Taaluma site build output
 sites/taaluma-site/site/
 sites/taaluma-site/.venv/
+# Narration: commit chapter-NN.mp3 + manifest.json; samples/cache are throwaway
+sites/taaluma-site/audio/sample*.mp3
+sites/taaluma-site/audio/.cache/
 
 # Hagut site build output
 sites/hagut-site/site/
