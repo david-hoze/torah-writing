@@ -1,9 +1,9 @@
 % === template‑a5.tex =========================================
 \documentclass[12pt,a4paper]{article}   % <‑‑ A5
 \usepackage{fontspec}
+\usepackage{xcolor}   % must load before bidi (pulled in by Hebrew); tikz loads color later
+\usepackage{graphicx} % same: bidi requires graphicx loaded before it (tikz loads it)
 \usepackage{polyglossia}
-\setmainlanguage{hebrew}
-\setotherlanguage{english}
 
 \setmainfont{Gisha}            % שנה לפונט הרצוי
 \newfontfamily\headingfont{David}
@@ -54,6 +54,11 @@
   {\end{adjustwidth}}
 
 \usepackage{tikzpagenodes}
+
+% Hebrew selection loads bidi, which insists on being loaded after every other
+% package - so keep these two lines last in the preamble.
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
 
 \begin{document}
 
