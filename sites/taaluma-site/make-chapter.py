@@ -33,8 +33,14 @@ API = "https://generativelanguage.googleapis.com/v1beta/models"
 
 # ---- narration settings ----
 DEFAULT_VOICE = "Charon"
-PRIMARY_MODEL = "gemini-2.5-pro-preview-tts"
-FALLBACK_MODEL = "gemini-3.1-flash-tts-preview"
+# Tried in order per chunk; each model has its own separate free-tier daily
+# quota, so chaining several lets a chapter finish when one is exhausted.
+# Best quality first (pro needs billing), then the flash models.
+MODELS = [
+    "gemini-2.5-pro-preview-tts",
+    "gemini-3.1-flash-tts-preview",
+    "gemini-2.5-flash-preview-tts",
+]
 STYLE = ("קרא בקול רך ומהורהר, כקריין של ספר שמע. "
          "את הציטוטים מהספרים קרא מעט לאט יותר.")
 MAX_CHARS = 3000          # sub-split chunks longer than this at paragraph breaks
@@ -167,7 +173,7 @@ def chunk(text, limit=MAX_CHARS):
 
 
 # ---------- Gemini TTS ----------
-def tts_pcm(text, voice, model, key, retries=4):
+def tts_pcm(text, voice, model, key, retries=4, backoff_429=False):
     url = f"{API}/{model}:generateContent?key={key}"
     body = {
         "contents": [{"parts": [{"text": f"{STYLE}\n\n{text}"}]}],
@@ -184,15 +190,28 @@ def tts_pcm(text, voice, model, key, retries=4):
         try:
             with urllib.request.urlopen(req, timeout=180) as r:
                 resp = json.loads(r.read())
-            part = resp["candidates"][0]["content"]["parts"][0]
-            return base64.b64decode(part["inlineData"]["data"])
+            cands = resp.get("candidates") or []
+            parts = (cands[0].get("content", {}).get("parts") if cands else None) or []
+            for p in parts:
+                inline = p.get("inlineData") or p.get("inline_data")
+                if inline and inline.get("data"):
+                    return base64.b64decode(inline["data"])
+            # HTTP 200 but no audio - an occasional transient empty response; retry
+            reason = cands[0].get("finishReason") if cands else "no candidates"
+            if attempt < retries - 1:
+                print(f" [empty:{reason} retry]", end="", flush=True)
+                time.sleep(3)
+                continue
+            raise RuntimeError(f"no audio (finishReason={reason})")
         except urllib.error.HTTPError as e:
             code = e.code
             msg = e.read().decode("utf-8", "replace")[:160]
-            # 429 = quota; it won't clear in seconds, so fail fast and let the
-            # caller fall back to the other model. Retry only transient 5xx.
-            if code in (500, 503) and attempt < retries - 1:
-                wait = 2 ** attempt
+            # 5xx is always transient. 429 on the model we're committed to
+            # (backoff_429) is usually a per-minute rate limit, so wait it out;
+            # 429 without backoff_429 means "give up and let the caller fall back".
+            transient = code in (500, 503) or (code == 429 and backoff_429)
+            if transient and attempt < retries - 1:
+                wait = min(60, 15 * (attempt + 1) if code == 429 else 2 ** attempt)
                 print(f" [{code} retry in {wait}s]", end="", flush=True)
                 time.sleep(wait)
                 continue
@@ -201,12 +220,19 @@ def tts_pcm(text, voice, model, key, retries=4):
 
 
 def synth_chunk(text, voice, key):
-    """Return PCM bytes for a chunk, trying the primary model then the fallback."""
-    try:
-        return tts_pcm(text, voice, PRIMARY_MODEL, key), PRIMARY_MODEL
-    except RuntimeError as e:
-        print(f" [primary failed: {e}; falling back]", end="", flush=True)
-        return tts_pcm(text, voice, FALLBACK_MODEL, key), FALLBACK_MODEL
+    """PCM for a chunk: walk the model chain, fail-fast to the next on 429/quota.
+    If every model is busy, wait and retry the whole chain a few times so a
+    per-minute rate limit has a chance to clear before we give up."""
+    last = None
+    for pass_ in range(4):
+        for model in MODELS:
+            try:
+                return tts_pcm(text, voice, model, key, retries=2), model
+            except RuntimeError as e:
+                last = e
+        print(" [all models busy, wait 30s]", end="", flush=True)
+        time.sleep(30)
+    raise RuntimeError(f"all models exhausted: {last}")
 
 
 def write_wav(path, pcm):
